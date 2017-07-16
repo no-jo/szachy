@@ -1,5 +1,9 @@
 package com.capgemini.chess.algorithms.implementation;
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -215,11 +219,14 @@ public class BoardManager {
 	}
 
 	private void addCastling(Move move) {
+		// if czy krol ruszyl sie w lewo czy w prawo
 		if (move.getFrom().getX() > move.getTo().getX()) {
+			// krol w lewo, roszada dluga
 			Piece rook = this.board.getPieceAt(new Coordinate(0, move.getFrom().getY()));
 			this.board.setPieceAt(null, new Coordinate(0, move.getFrom().getY()));
 			this.board.setPieceAt(rook, new Coordinate(move.getTo().getX() + 1, move.getTo().getY()));
 		} else {
+			// krol w prawo, roszada krotka
 			Piece rook = this.board.getPieceAt(new Coordinate(Board.SIZE - 1, move.getFrom().getY()));
 			this.board.setPieceAt(null, new Coordinate(Board.SIZE - 1, move.getFrom().getY()));
 			this.board.setPieceAt(rook, new Coordinate(move.getTo().getX() - 1, move.getTo().getY()));
@@ -232,15 +239,31 @@ public class BoardManager {
 	}
 
 	private Move validateMove(Coordinate from, Coordinate to) throws InvalidMoveException, KingInCheckException {
+		// TODO please add implementation here
 
 		if (to.getX() > Board.SIZE - 1 || to.getX() < 0 || to.getY() > Board.SIZE - 1 || to.getY() < 0) {
-			throw new InvalidMoveException();
+			throw new InvalidMoveException("Move out of bounds");
 		}
 		if (from.getX() > Board.SIZE - 1 || from.getX() < 0 || from.getY() > Board.SIZE - 1 || from.getY() < 0) {
-			throw new InvalidMoveException();
+			throw new InvalidMoveException("Move out of bounds");
 		}
 
 		Piece piece = board.getPieceAt(from);
+		Move result = new Move();
+		result.setMovedPiece(piece);
+		result.setFrom(from);
+		result.setTo(to);
+
+		if (board.getPieceAt(to) == null) {
+			result.setType(MoveType.ATTACK); // do uzupelnienia w ifach dla
+												// enpassant i castling
+		} else if (board.getPieceAt(to).getColor() == piece.getColor()) {
+			throw new InvalidMoveException("Cannot capture own piece");
+		} else if (board.getPieceAt(to).getColor() != piece.getColor()) {
+			result.setType(MoveType.CAPTURE);
+		} else {
+			throw new InvalidMoveException();
+		}
 
 		if (piece == Piece.WHITE_KING || piece == Piece.BLACK_KING) {
 
@@ -257,33 +280,46 @@ public class BoardManager {
 		} else
 			throw new InvalidMoveException();
 
-		if (isKingInCheck(piece.getColor())) //sprawdzamy czy nasz krol po ruchu nie bedzie w szachu
+		board.setPieceAt(piece, to);
+		board.setPieceAt(null, from);
+		if (isKingInCheck(piece.getColor())) { // sprawdzamy czy nasz krol PO
+												// ruchu nie bedzie w szachu
+			board.setPieceAt(null, to);
+			board.setPieceAt(piece, from);
 			throw new KingInCheckException();
+		} else {
+			board.setPieceAt(null, to);
+			board.setPieceAt(piece, from);
+		}
 
-		// TODO please add implementation here
-		Move move = new Move();
-		// move.setFrom(new Coordinate(5, 1));
-		move.setFrom(from);
-		// move.setTo(new Coordinate(5, 3));
-		move.setTo(to);
-		move.setType(MoveType.ATTACK);
-
-		return move;
+		return result;
 	}
 
 	private boolean isKingInCheck(Color kingColor) {
 
+		List<Coordinate> possible_captures = new ArrayList<Coordinate>();
+		Coordinate current_king_position = null;
 		boolean result = false;
 		Piece[][] pieces = this.board.getPieces();
-		for (Piece[] ps : pieces) {
-			for (Piece p : ps) {
-				if (p == null) continue;
-				else if (p.getColor() != kingColor) {
-					result = false;//TODO sprawdzic czy bierka moze wykonac ruch na krola - zapetlenie z validate move ?
-				}
-				;
 
+		for (int x = 0; x < Board.SIZE; x++) {
+			for (int y = 0; y < Board.SIZE; y++) {
+				if (pieces[x][y] == null)
+					continue;
+				else if (pieces[x][y].getColor() == kingColor && pieces[x][y].getType() == PieceType.KING) {
+					current_king_position = new Coordinate(x, y);
+				} else if (pieces[x][y].getColor() != kingColor) {
+					// possible_captures += pieces[x][y] get possible captures
+					// list;//TODO sprawdzic czy bierka moze wykonac ruch na
+					// krola - zapetlenie z validate move ?
+				}
 			}
+		}
+
+		if (!possible_captures.isEmpty() && possible_captures.contains(current_king_position)) {
+			result = true;
+		} else {
+			result = false;
 		}
 		// TODO please add implementation here
 		return result;
