@@ -249,6 +249,10 @@ public class BoardManager {
 		}
 
 		Piece piece = board.getPieceAt(from);
+		if (piece == null) {
+			throw new InvalidMoveException("No piece to move in this position");
+		}
+		List<Coordinate> possibleMoves = new ArrayList<Coordinate>();
 		Move result = new Move();
 		result.setMovedPiece(piece);
 		result.setFrom(from);
@@ -266,19 +270,48 @@ public class BoardManager {
 		}
 
 		if (piece == Piece.WHITE_KING || piece == Piece.BLACK_KING) {
-
+			if (!getPossibleKingPosition(from, to))
+				throw new InvalidMoveException("King tried to move too far");
+			// castling if (to.equals(new Coordinate(2, 0)) ) {}; //piwrszy ruch
 		} else if (piece == Piece.WHITE_QUEEN || piece == Piece.BLACK_QUEEN) {
-
-		} else if (piece == Piece.WHITE_BISHOP || piece == Piece.BLACK_BISHOP) {
-
+			if (!getPossibleQueenPosition(from, to))
+				throw new InvalidMoveException("Invalid queen move");
+		} else if (piece == Piece.WHITE_BISHOP || piece == Piece.BLACK_BISHOP) {			
+			if (!getPossibleBishopPosition(from, to))
+					{throw new InvalidMoveException("Wrong bishop move");}
 		} else if (piece == Piece.WHITE_KNIGHT || piece == Piece.BLACK_KNIGHT) {
-
+			possibleMoves = getPossibleKnightPosition();
 		} else if (piece == Piece.WHITE_ROOK || piece == Piece.BLACK_ROOK) {
-
+			if (!getPossibleRookPosition(from, to))
+				throw new InvalidMoveException("Wrong rook move");
 		} else if (piece == Piece.WHITE_PAWN || piece == Piece.BLACK_PAWN) {
 
-		} else
-			throw new InvalidMoveException();
+			if (!this.board.getMoveHistory().isEmpty()){
+			Move lastMove = this.board.getMoveHistory().get(this.board.getMoveHistory().size() - 1);
+			// mozna sprawdzic to latwiej, enpassant zawsze jest ruchem na 2 lub
+			// 5 linie
+			if (from.getX() != to.getX() && lastMove.getMovedPiece().getColor() != piece.getColor()
+					&& lastMove.getMovedPiece().getType() == PieceType.PAWN
+					&& Math.abs(lastMove.getFrom().getY() - lastMove.getTo().getY()) == 2
+					&& Math.abs(lastMove.getTo().getX() - from.getX()) == 1) {
+				// nie trzeba sprawdzac czy pola sa puste poniewaz wtedy nie
+				// bylby mozliwy poprzedni ruch
+				result.setType(MoveType.EN_PASSANT);
+			}
+			}
+			if (result.getType() == MoveType.CAPTURE) {
+				if (!getPossiblePawnCapturePosition(from, to, piece.getColor()))
+					throw new InvalidMoveException("Invalid capture by pawn");
+			} else if (result.getType() == MoveType.ATTACK) {
+				if (!getPossiblePawnAttackPosition(from, to, piece.getColor())) 
+					throw new InvalidMoveException("Invalid attack by pawn");
+			}
+
+		}
+
+//		if (possibleMoves == null || !possibleMoves.contains(to)) {
+//			throw new InvalidMoveException("Null in possible moves");
+//		}
 
 		board.setPieceAt(piece, to);
 		board.setPieceAt(null, from);
@@ -293,6 +326,71 @@ public class BoardManager {
 		}
 
 		return result;
+	}
+
+	private boolean getPossibleKingPosition(Coordinate from, Coordinate to) {
+		if (Math.abs(from.getX() - to.getX()) <= 1 && Math.abs(from.getY() - to.getY()) <= 1)
+			return true;
+		else
+			return false;
+	}
+
+	private boolean getPossiblePawnAttackPosition(Coordinate from, Coordinate to, Color color) {
+		//TODO add check for capturing backward black and white need to move in opposite directions
+		if (color == Color.WHITE && from.getY() == 1 && to.getY() == 3 && Math.abs(from.getX() - to.getX()) == 0)
+			return true;
+		if (color == Color.BLACK && from.getY() == 6 && to.getY() == 4 && Math.abs(from.getX() - to.getX()) == 0)
+			return true;
+		if (color == Color.WHITE && from.getX() - to.getX() == 0 && from.getY() - to.getY() == -1)
+			return true;
+		if (color == Color.BLACK && from.getX() - to.getX() == 0 && from.getY() - to.getY() == 1)
+			return true;
+		else
+			return false;
+	}
+
+	private boolean getPossiblePawnCapturePosition(Coordinate from, Coordinate to, Color color) {
+		//TODO add test for backward capture
+		if (color == Color.WHITE && Math.abs(from.getX() - to.getX()) == 1 && from.getY() - to.getY() == -1)
+			return true;
+		if (color == Color.BLACK && Math.abs(from.getX() - to.getX()) == 1 && from.getY() - to.getY() == 1)
+			return true;
+		else
+			return false;
+	}
+
+	private boolean getPossibleRookPosition(Coordinate from, Coordinate to) {
+		if (Math.abs(from.getX() - to.getX()) >= 1 && Math.abs(from.getY() - to.getY()) == 0)
+			return true;
+		if (Math.abs(from.getX() - to.getX()) == 0 && Math.abs(from.getY() - to.getY()) >= 1)
+			return true;
+		else
+			return false;
+	}
+
+	private List<Coordinate> getPossibleKnightPosition() {
+
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	private boolean getPossibleBishopPosition(Coordinate from, Coordinate to) {
+		if (Math.abs(from.getX() - to.getX()) == Math.abs(from.getY() - to.getY()))
+			return true;
+		else
+			// TODO Auto-generated method stub
+			return false;
+	}
+
+	private boolean getPossibleQueenPosition(Coordinate from, Coordinate to) {
+		if (Math.abs(from.getX() - to.getX()) >= 1 && Math.abs(from.getY() - to.getY()) == 0)
+			return true;
+		if (Math.abs(from.getX() - to.getX()) == 0 && Math.abs(from.getY() - to.getY()) >= 1)
+			return true;
+		if (Math.abs(from.getX() - to.getX()) == Math.abs(from.getY() - to.getY()))
+			return true;
+		else
+			return false;
 	}
 
 	private boolean isKingInCheck(Color kingColor) {
