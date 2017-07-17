@@ -220,6 +220,7 @@ public class BoardManagerTest {
 		// then
 		assertEquals(MoveType.CAPTURE, move.getType());
 		assertEquals(Piece.BLACK_KNIGHT, move.getMovedPiece());
+		assertEquals(boardManager.getBoard().getPieceAt(new Coordinate(2,6)), Piece.BLACK_KNIGHT);
 	}
 	
 	@Test
@@ -293,7 +294,6 @@ public class BoardManagerTest {
 	}
 	
 	@Test
-	@Ignore
 	public void testPerformMoveCastling() throws InvalidMoveException {
 		// given
 		Board board = new Board();
@@ -310,7 +310,7 @@ public class BoardManagerTest {
 	}
 	
 	@Test
-	@Ignore
+
 	public void testPerformMoveEnPassant() throws InvalidMoveException {
 		// given
 		Board board = new Board();
@@ -501,7 +501,6 @@ public class BoardManagerTest {
 	}
 	
 	@Test
-	@Ignore
 	public void testPerformMoveInvalidKnightDestination() {
 		// given
 		Board board = new Board();
@@ -602,8 +601,7 @@ public class BoardManagerTest {
 	}
 	
 	@Test
-	@Ignore
-	public void testPerformMoveInvalidCastlingPiecesMoved() throws InvalidMoveException {
+	public void testPerformMoveInvalidCastlingKingMoved() throws InvalidMoveException {
 		// given
 		Board board = new Board();
 		BoardManager boardManager = new BoardManager(board);
@@ -613,6 +611,31 @@ public class BoardManagerTest {
 		boardManager.performMove(new Coordinate(4, 0), new Coordinate(3, 0));
 		board.getMoveHistory().add(createDummyMove(board));
 		boardManager.performMove(new Coordinate(3, 0), new Coordinate(4, 0));
+		board.getMoveHistory().add(createDummyMove(board));
+		
+		// when
+		boolean exceptionThrown = false;
+		try {
+			boardManager.performMove(new Coordinate(4, 0), new Coordinate(6, 0));
+		} catch (InvalidMoveException e) {
+			exceptionThrown = true;
+		}
+		
+		// then 
+		assertTrue(exceptionThrown);
+	}
+	
+	@Test
+	public void testPerformMoveInvalidCastlingRookMoved() throws InvalidMoveException {
+		// given
+		Board board = new Board();
+		BoardManager boardManager = new BoardManager(board);
+		
+		board.setPieceAt(Piece.WHITE_KING, new Coordinate(4, 0));
+		board.setPieceAt(Piece.WHITE_ROOK, new Coordinate(7, 0));
+		boardManager.performMove(new Coordinate(7, 0), new Coordinate(7, 5));
+		board.getMoveHistory().add(createDummyMove(board));
+		boardManager.performMove(new Coordinate(7, 5), new Coordinate(7, 0));
 		board.getMoveHistory().add(createDummyMove(board));
 		
 		// when
