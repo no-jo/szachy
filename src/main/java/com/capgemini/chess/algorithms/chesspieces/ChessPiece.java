@@ -9,6 +9,13 @@ import com.capgemini.chess.algorithms.data.generated.ChessBoard;
 
 public abstract class ChessPiece {
 	
+//	final private Color color;
+//	final private PieceType type = null;
+//
+//	public ChessPiece(Color c) {
+//		color = c;
+//	}
+	
 	abstract Color getColor();
 	
 	abstract PieceType getType();
