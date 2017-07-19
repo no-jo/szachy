@@ -6,11 +6,13 @@ import java.util.List;
 import com.capgemini.chess.algorithms.data.Coordinate;
 import com.capgemini.chess.algorithms.data.Move;
 import com.capgemini.chess.algorithms.data.enums.BoardState;
+import com.capgemini.chess.algorithms.data.enums.CastlingType;
 import com.capgemini.chess.algorithms.data.enums.Color;
 import com.capgemini.chess.algorithms.data.enums.MoveType;
 import com.capgemini.chess.algorithms.data.enums.Piece;
 import com.capgemini.chess.algorithms.data.enums.PieceType;
 import com.capgemini.chess.algorithms.data.generated.Board;
+import com.capgemini.chess.algorithms.implementation.exceptions.AnotherPieceBlocksException;
 import com.capgemini.chess.algorithms.implementation.exceptions.InvalidMoveException;
 import com.capgemini.chess.algorithms.implementation.exceptions.KingInCheckException;
 
@@ -248,13 +250,13 @@ public class BoardManager {
 		newMove.setType(determineMoveType(from, to, piece));
 
 		if (newMove.getType() == MoveType.CASTLING) {
-			verifyCastlingConditions(piece);
+			verifyCastlingConditions(newMove);
 		} else {
 			piece.isMovePossible(newMove);
 		}
 
 		if (isAnyPieceBlocking(newMove))
-			throw new InvalidMoveException();
+			throw new AnotherPieceBlocksException();
 
 		board.setPieceAt(piece, to);
 		board.setPieceAt(null, from);
@@ -290,7 +292,7 @@ public class BoardManager {
 				if (board.getPieceAt(new Coordinate(from.getX(), i)) != null)
 					return true;
 			}
-		} else if (deltaX == deltaY){
+		} else if (deltaX == deltaY) {
 			int iter_start = from.getY() < to.getY() ? from.getY() : to.getY();
 			int start = from.getX() < to.getX() ? from.getX() : to.getX();
 			for (int i = iter_start + 1, k = start + 1; i < iter_start + deltaY; i++, k++) {
@@ -301,34 +303,30 @@ public class BoardManager {
 		return false;
 	}
 
-	private void verifyCastlingConditions(Piece piece) throws InvalidMoveException {
-		if (board.getState() == BoardState.CHECK)
+	private void verifyCastlingConditions(Move newMove) throws InvalidMoveException {
+
+		Piece piece = newMove.getMovedPiece();
+		if (isKingInCheck(piece.getColor()))
 			throw new InvalidMoveException("King under check cannot castle");
+
 		boolean hasKingMoved = false;
 		boolean hasRookMoved = false;
-		// TODO sprawdzenie czy zadne pole przez ktore przechodzi krol
-		// nie jest szachowane
+		CastlingType castlingType = newMove.getFrom().getX() > newMove.getTo().getX() ? CastlingType.QUEENSIDE
+				: CastlingType.KINGSIDE;
+
 		for (Move move : this.board.getMoveHistory()) {
-			if (piece.getColor() == Color.WHITE && move.getMovedPiece().getType() == piece.getType()
-					&& move.getMovedPiece().getColor() == piece.getColor()
-					&& move.getFrom().equals(new Coordinate(4, 0))) {
+			if (move.getMovedPiece().getType() == piece.getType()
+					&& move.getMovedPiece().getColor() == piece.getColor()) {
 				hasKingMoved = true;
 			}
-			if (piece.getColor() == Color.BLACK && move.getMovedPiece().getType() == piece.getType()
-					&& move.getMovedPiece().getColor() == piece.getColor()
-					&& move.getFrom().equals(new Coordinate(4, 7))) {
-				hasKingMoved = true;
-			}
-			if (piece.getColor() == Color.WHITE && move.getMovedPiece().getType() == PieceType.ROOK
-					&& move.getMovedPiece().getColor() == piece.getColor()
-					&& move.getFrom().getX() > move.getTo().getX() ? move.getFrom().equals(new Coordinate(0, 0))
-							: move.getFrom().equals(new Coordinate(7, 0))) {
+
+			if (castlingType == CastlingType.QUEENSIDE && move.getMovedPiece().getColor() == piece.getColor()
+					&& move.getMovedPiece().getType() == PieceType.ROOK && move.getFrom().getX() == 0) {
 				hasRookMoved = true;
 			}
-			if (piece.getColor() == Color.BLACK && move.getMovedPiece().getType() == PieceType.ROOK
-					&& move.getMovedPiece().getColor() == piece.getColor()
-					&& move.getFrom().getX() > move.getTo().getX() ? move.getFrom().equals(new Coordinate(0, 7))
-							: move.getFrom().equals(new Coordinate(7, 7))) {
+
+			if (castlingType == CastlingType.KINGSIDE && move.getMovedPiece().getColor() == piece.getColor()
+					&& move.getMovedPiece().getType() == PieceType.ROOK && move.getFrom().getX() == 7) {
 				hasRookMoved = true;
 			}
 		}
@@ -336,6 +334,17 @@ public class BoardManager {
 		if (hasKingMoved || hasRookMoved) {
 			throw new InvalidMoveException("Rook or king have already moved. Castling not allowed");
 		}
+		
+		Move castling_positions = new Move();
+		castling_positions.setFrom(newMove.getFrom());
+		if (castlingType == CastlingType.QUEENSIDE) {
+			castling_positions.setTo(new Coordinate(0,newMove.getTo().getY()));
+		} else
+			castling_positions.setTo(new Coordinate(7,newMove.getTo().getY()));
+		if (isAnyPieceBlocking(castling_positions))
+			throw new InvalidMoveException("Cannot castle with pieces in between");
+		
+		//TODO add condition to check if no field that king passes through is in check
 	}
 
 	private MoveType determineMoveType(Coordinate from, Coordinate to, Piece piece) throws InvalidMoveException {
@@ -391,7 +400,7 @@ public class BoardManager {
 		// Piece[][] pieces = this.board.getPieces();
 
 		if (current_king_position == null) {
-			return false;
+			return result; // TODO no king exception
 		}
 
 		Move move = new Move();
@@ -409,12 +418,12 @@ public class BoardManager {
 					move.setFrom(new Coordinate(x, y));
 					try {
 						piece.isMovePossible(move);
-						isAnyPieceBlocking(move);
 					} catch (InvalidMoveException e) {
 						continue;
 					}
-					result = true;
-					break;
+					result = !isAnyPieceBlocking(move);
+					if (result)
+						break; // TODO return result here
 				}
 			}
 		}

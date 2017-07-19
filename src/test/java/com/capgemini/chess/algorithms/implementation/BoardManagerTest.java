@@ -692,6 +692,7 @@ public class BoardManagerTest {
 	
 	@Test
 	@Ignore
+	////////////////////////////////////////////////////////////////////////////////////////////
 	public void testPerformMoveInvalidCastlingKingUnderCheck() {
 		// given
 		Board board = new Board();
@@ -731,6 +732,28 @@ public class BoardManagerTest {
 		
 		// then 
 		assertTrue(exceptionThrown);
+	}
+	
+	@Test
+	public void shouldKingBeDefendedFromCheck() throws InvalidMoveException {
+		// given
+		Board board = new Board();
+		board.setPieceAt(Piece.WHITE_KING, new Coordinate(4, 0));
+		board.setPieceAt(Piece.WHITE_BISHOP, new Coordinate(4, 5));
+		board.setPieceAt(Piece.BLACK_ROOK, new Coordinate(4, 7));
+		board.setPieceAt(Piece.WHITE_PAWN, new Coordinate(4, 1));
+		
+		// when
+		BoardManager boardManager = new BoardManager(board);
+		boolean withoutException = true;
+		try {
+			boardManager.performMove(new Coordinate(4, 5), new Coordinate(7, 2));
+		} catch (InvalidMoveException e) {
+			withoutException = false;
+		}
+		
+		// then 
+		assertTrue(withoutException);
 	}
 	
 	@Test
