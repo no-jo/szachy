@@ -1,7 +1,7 @@
 package com.capgemini.chess.algorithms.data.enums;
 
 /**
- * Chess piece color
+ * Chess this color
  * 
  * @author Michal Bejm
  *

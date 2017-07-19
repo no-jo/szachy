@@ -1,7 +1,7 @@
 package com.capgemini.chess.algorithms.data.enums;
 
 /**
- * Chess piece types
+ * Chess this types
  * 
  * @author Michal Bejm
  *

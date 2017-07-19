@@ -236,119 +236,24 @@ public class BoardManager {
 
 	private Move validateMove(Coordinate from, Coordinate to) throws InvalidMoveException, KingInCheckException {
 
-		if (to.getX() > Board.SIZE - 1 || to.getX() < 0 || to.getY() > Board.SIZE - 1 || to.getY() < 0) {
-			throw new InvalidMoveException("Move out of bounds");
-		}
-		if (from.getX() > Board.SIZE - 1 || from.getX() < 0 || from.getY() > Board.SIZE - 1 || from.getY() < 0) {
-			throw new InvalidMoveException("Move out of bounds");
-		}
+		areCoordinatesInBounds(from, to);
 
 		Piece piece = board.getPieceAt(from);
-		if (piece == null) {
-			throw new InvalidMoveException("No piece to move in this position");
-		} else if (calculateNextMoveColor() != piece.getColor()) {
-			throw new InvalidMoveException("The same color cannot move twice");
-		}
+		isFromPieceValid(piece);
 
-		Move result = new Move();
-		result.setMovedPiece(piece);
-		result.setFrom(from);
-		result.setTo(to);
+		Move newMove = new Move();
+		newMove.setMovedPiece(piece);
+		newMove.setFrom(from);
+		newMove.setTo(to);
+		newMove.setType(determineMoveType(from, to, piece));
 
-		if (board.getPieceAt(to) == null) {
-			result.setType(MoveType.ATTACK);
-		} else if (board.getPieceAt(to).getColor() == piece.getColor()) {
-			throw new InvalidMoveException("Cannot capture own piece");
-		} else if (board.getPieceAt(to).getColor() != piece.getColor()) {
-			result.setType(MoveType.CAPTURE);
+		if (newMove.getType() == MoveType.CASTLING) {
+			verifyCastlingConditions(piece);
 		} else {
-			throw new InvalidMoveException();
+			piece.isMovePossible(newMove);
 		}
 
-		if (piece == Piece.WHITE_KING || piece == Piece.BLACK_KING) {
-
-			if (Math.abs(from.getX() - to.getX()) > 1) {
-				result.setType(MoveType.CASTLING);
-			}
-			if (result.getType() == MoveType.CASTLING) {
-				// if (board.getPieceAt(to).getType() == )
-				boolean hasKingMoved = false;
-				boolean hasRookMoved = false;
-				// TODO sprawdzenie czy zadne pole przez ktore przechodzi krol
-				// nie jest szachowane
-				for (Move move : this.board.getMoveHistory()) {
-					if (piece.getColor() == Color.WHITE && move.getMovedPiece().getType() == piece.getType()
-							&& move.getMovedPiece().getColor() == piece.getColor()
-							&& move.getFrom().equals(new Coordinate(4, 0))) {
-						hasKingMoved = true;
-					}
-					if (piece.getColor() == Color.BLACK && move.getMovedPiece().getType() == piece.getType()
-							&& move.getMovedPiece().getColor() == piece.getColor()
-							&& move.getFrom().equals(new Coordinate(4, 7))) {
-						hasKingMoved = true;
-					}
-					if (piece.getColor() == Color.WHITE && move.getMovedPiece().getType() == PieceType.ROOK
-							&& move.getMovedPiece().getColor() == piece.getColor()
-							&& move.getFrom().getX() > move.getTo().getX() ? move.getFrom().equals(new Coordinate(0, 0))
-									: move.getFrom().equals(new Coordinate(7, 0))) {
-						hasRookMoved = true;
-					}
-					if (piece.getColor() == Color.BLACK && move.getMovedPiece().getType() == PieceType.ROOK
-							&& move.getMovedPiece().getColor() == piece.getColor()
-							&& move.getFrom().getX() > move.getTo().getX() ? move.getFrom().equals(new Coordinate(0, 7))
-									: move.getFrom().equals(new Coordinate(7, 7))) {
-						hasRookMoved = true;
-					}
-				}
-				if (hasKingMoved || hasRookMoved) {
-					throw new InvalidMoveException("Rook or king have already moved. Castling not allowed");
-				}
-
-			} else {
-				if (!getPossibleKingPosition(from, to))
-					throw new InvalidMoveException("King tried to move too far");
-			}
-			// castling if (to.equals(new Coordinate(2, 0)) ) {}; //piwrszy ruch
-		} else if (piece == Piece.WHITE_QUEEN || piece == Piece.BLACK_QUEEN) {
-			if (!getPossibleQueenPosition(from, to))
-				throw new InvalidMoveException("Invalid queen move");
-		} else if (piece == Piece.WHITE_BISHOP || piece == Piece.BLACK_BISHOP) {
-			if (!getPossibleBishopPosition(from, to)) {
-				throw new InvalidMoveException("Wrong bishop move");
-			}
-		} else if (piece == Piece.WHITE_KNIGHT || piece == Piece.BLACK_KNIGHT) {
-			if (!getPossibleKnightPosition(from, to))
-				throw new InvalidMoveException("Invalid Knight move");
-		} else if (piece == Piece.WHITE_ROOK || piece == Piece.BLACK_ROOK) {
-			if (!getPossibleRookPosition(from, to))
-				throw new InvalidMoveException("Wrong rook move");
-		} else if (piece == Piece.WHITE_PAWN || piece == Piece.BLACK_PAWN) {
-
-			if (!this.board.getMoveHistory().isEmpty()) {
-				Move lastMove = this.board.getMoveHistory().get(this.board.getMoveHistory().size() - 1);
-				// mozna sprawdzic to latwiej, enpassant zawsze jest ruchem na 2
-				// lub
-				// 5 linie
-				if (from.getX() != to.getX() && lastMove.getMovedPiece().getColor() != piece.getColor()
-						&& lastMove.getMovedPiece().getType() == PieceType.PAWN
-						&& Math.abs(lastMove.getFrom().getY() - lastMove.getTo().getY()) == 2
-						&& Math.abs(lastMove.getTo().getX() - from.getX()) == 1) {
-					// nie trzeba sprawdzac czy pola sa puste poniewaz wtedy nie
-					// bylby mozliwy poprzedni ruch
-					result.setType(MoveType.EN_PASSANT);
-				}
-			}
-			if (result.getType() == MoveType.CAPTURE) {
-				if (!getPossiblePawnCapturePosition(from, to, piece.getColor()))
-					throw new InvalidMoveException("Invalid capture by pawn");
-			} else if (result.getType() == MoveType.ATTACK) {
-				if (!getPossiblePawnAttackPosition(from, to, piece.getColor()))
-					throw new InvalidMoveException("Invalid attack by pawn");
-			}
-
-		}
-
-		if (isAnyPieceBlocking(result))
+		if (isAnyPieceBlocking(newMove))
 			throw new InvalidMoveException();
 
 		board.setPieceAt(piece, to);
@@ -363,18 +268,13 @@ public class BoardManager {
 			board.setPieceAt(piece, from);
 		}
 
-		return result;
+		return newMove;
 	}
 
 	private boolean isAnyPieceBlocking(Move move) {
 
 		Coordinate to = move.getTo();
 		Coordinate from = move.getFrom();
-
-		if (move.getMovedPiece().getType() == PieceType.KNIGHT) {
-			return false;
-		}
-
 		int deltaX = Math.abs(from.getX() - to.getX());
 		int deltaY = Math.abs(from.getY() - to.getY());
 
@@ -390,7 +290,7 @@ public class BoardManager {
 				if (board.getPieceAt(new Coordinate(from.getX(), i)) != null)
 					return true;
 			}
-		} else {
+		} else if (deltaX == deltaY){
 			int iter_start = from.getY() < to.getY() ? from.getY() : to.getY();
 			int start = from.getX() < to.getX() ? from.getX() : to.getX();
 			for (int i = iter_start + 1, k = start + 1; i < iter_start + deltaY; i++, k++) {
@@ -401,104 +301,140 @@ public class BoardManager {
 		return false;
 	}
 
-	private boolean getPossibleKingPosition(Coordinate from, Coordinate to) {
-		if (Math.abs(from.getX() - to.getX()) <= 1 && Math.abs(from.getY() - to.getY()) <= 1)
-			return true;
-		else
-			return false;
+	private void verifyCastlingConditions(Piece piece) throws InvalidMoveException {
+		if (board.getState() == BoardState.CHECK)
+			throw new InvalidMoveException("King under check cannot castle");
+		boolean hasKingMoved = false;
+		boolean hasRookMoved = false;
+		// TODO sprawdzenie czy zadne pole przez ktore przechodzi krol
+		// nie jest szachowane
+		for (Move move : this.board.getMoveHistory()) {
+			if (piece.getColor() == Color.WHITE && move.getMovedPiece().getType() == piece.getType()
+					&& move.getMovedPiece().getColor() == piece.getColor()
+					&& move.getFrom().equals(new Coordinate(4, 0))) {
+				hasKingMoved = true;
+			}
+			if (piece.getColor() == Color.BLACK && move.getMovedPiece().getType() == piece.getType()
+					&& move.getMovedPiece().getColor() == piece.getColor()
+					&& move.getFrom().equals(new Coordinate(4, 7))) {
+				hasKingMoved = true;
+			}
+			if (piece.getColor() == Color.WHITE && move.getMovedPiece().getType() == PieceType.ROOK
+					&& move.getMovedPiece().getColor() == piece.getColor()
+					&& move.getFrom().getX() > move.getTo().getX() ? move.getFrom().equals(new Coordinate(0, 0))
+							: move.getFrom().equals(new Coordinate(7, 0))) {
+				hasRookMoved = true;
+			}
+			if (piece.getColor() == Color.BLACK && move.getMovedPiece().getType() == PieceType.ROOK
+					&& move.getMovedPiece().getColor() == piece.getColor()
+					&& move.getFrom().getX() > move.getTo().getX() ? move.getFrom().equals(new Coordinate(0, 7))
+							: move.getFrom().equals(new Coordinate(7, 7))) {
+				hasRookMoved = true;
+			}
+		}
+
+		if (hasKingMoved || hasRookMoved) {
+			throw new InvalidMoveException("Rook or king have already moved. Castling not allowed");
+		}
 	}
 
-	private boolean getPossiblePawnAttackPosition(Coordinate from, Coordinate to, Color color) {
+	private MoveType determineMoveType(Coordinate from, Coordinate to, Piece piece) throws InvalidMoveException {
+		MoveType result;
 
-		if (color == Color.WHITE && from.getY() == 1 && to.getY() == 3 && Math.abs(from.getX() - to.getX()) == 0)
-			return true;
-		if (color == Color.BLACK && from.getY() == 6 && to.getY() == 4 && Math.abs(from.getX() - to.getX()) == 0)
-			return true;
-		if (color == Color.WHITE && from.getX() - to.getX() == 0 && from.getY() - to.getY() == -1)
-			return true;
-		if (color == Color.BLACK && from.getX() - to.getX() == 0 && from.getY() - to.getY() == 1)
-			return true;
-		else
-			return false;
+		if ((piece == Piece.WHITE_KING || piece == Piece.BLACK_KING) && (Math.abs(from.getX() - to.getX()) > 1)) {
+			result = MoveType.CASTLING;
+		} else if (board.getPieceAt(to) == null) {
+			result = (MoveType.ATTACK);
+		} else if (board.getPieceAt(to).getColor() != piece.getColor()) {
+			result = (MoveType.CAPTURE);
+		} else if (board.getPieceAt(to).getColor() == piece.getColor()) {
+			throw new InvalidMoveException("Cannot capture own piece");
+		} else {
+			throw new InvalidMoveException("Cannot classify move");
+		}
+
+		if (piece == Piece.WHITE_PAWN || piece == Piece.BLACK_PAWN) {
+			if (!this.board.getMoveHistory().isEmpty()) {
+				Move lastMove = this.board.getMoveHistory().get(this.board.getMoveHistory().size() - 1);
+				if (from.getX() != to.getX() && lastMove.getMovedPiece().getColor() != piece.getColor()
+						&& lastMove.getMovedPiece().getType() == PieceType.PAWN
+						&& Math.abs(lastMove.getFrom().getY() - lastMove.getTo().getY()) == 2
+						&& Math.abs(lastMove.getTo().getX() - from.getX()) == 1) {
+					result = (MoveType.EN_PASSANT);
+				}
+			}
+		}
+		return result;
 	}
 
-	private boolean getPossiblePawnCapturePosition(Coordinate from, Coordinate to, Color color) {
-		// TODO add test for backward capture
-		if (color == Color.WHITE && Math.abs(from.getX() - to.getX()) == 1 && from.getY() - to.getY() == -1)
-			return true;
-		if (color == Color.BLACK && Math.abs(from.getX() - to.getX()) == 1 && from.getY() - to.getY() == 1)
-			return true;
-		else
-			return false;
+	private void isFromPieceValid(Piece piece) throws InvalidMoveException {
+		if (piece == null) {
+			throw new InvalidMoveException("No piece to move in this position");
+		} else if (calculateNextMoveColor() != piece.getColor()) {
+			throw new InvalidMoveException("The same color cannot move twice");
+		}
 	}
 
-	private boolean getPossibleRookPosition(Coordinate from, Coordinate to) {
-		if (Math.abs(from.getX() - to.getX()) >= 1 && Math.abs(from.getY() - to.getY()) == 0)
-			return true;
-		if (Math.abs(from.getX() - to.getX()) == 0 && Math.abs(from.getY() - to.getY()) >= 1)
-			return true;
-		else
-			return false;
-	}
-
-	private boolean getPossibleKnightPosition(Coordinate from, Coordinate to) {
-		if (Math.abs(from.getX() - to.getX()) == 2 && Math.abs(from.getY() - to.getY()) == 1)
-			return true;
-		if (Math.abs(from.getX() - to.getX()) == 1 && Math.abs(from.getY() - to.getY()) == 2)
-			return true;
-		else
-			return false;
-	}
-
-	private boolean getPossibleBishopPosition(Coordinate from, Coordinate to) {
-		if (Math.abs(from.getX() - to.getX()) == Math.abs(from.getY() - to.getY()))
-			return true;
-		else
-			// TODO Auto-generated method stub
-			return false;
-	}
-
-	private boolean getPossibleQueenPosition(Coordinate from, Coordinate to) {
-		if (Math.abs(from.getX() - to.getX()) >= 1 && Math.abs(from.getY() - to.getY()) == 0)
-			return true;
-		if (Math.abs(from.getX() - to.getX()) == 0 && Math.abs(from.getY() - to.getY()) >= 1)
-			return true;
-		if (Math.abs(from.getX() - to.getX()) == Math.abs(from.getY() - to.getY()))
-			return true;
-		else
-			return false;
+	private void areCoordinatesInBounds(Coordinate from, Coordinate to) throws InvalidMoveException {
+		if (to.getX() > Board.SIZE - 1 || to.getX() < 0 || to.getY() > Board.SIZE - 1 || to.getY() < 0) {
+			throw new InvalidMoveException("Move out of bounds");
+		}
+		if (from.getX() > Board.SIZE - 1 || from.getX() < 0 || from.getY() > Board.SIZE - 1 || from.getY() < 0) {
+			throw new InvalidMoveException("Move out of bounds");
+		}
 	}
 
 	private boolean isKingInCheck(Color kingColor) {
 
-		Coordinate current_king_position = null;
+		Coordinate current_king_position = findCurrentKingPosition(kingColor);
 		boolean result = false;
-		Piece[][] pieces = this.board.getPieces();
+		// Piece[][] pieces = this.board.getPieces();
+
+		if (current_king_position == null) {
+			return false;
+		}
+
+		Move move = new Move();
+		move.setTo(current_king_position);
+		move.setType(MoveType.CAPTURE);
 
 		for (int x = 0; x < Board.SIZE; x++) {
 			for (int y = 0; y < Board.SIZE; y++) {
-				if (pieces[x][y] == null)
+				Piece piece = board.getPieceAt(new Coordinate(x, y));
+				if (piece == null)
 					continue;
-				else if (pieces[x][y].getColor() == kingColor && pieces[x][y].getType() == PieceType.KING) {
+				else if (piece.getColor() == kingColor) {
+					continue;
+				} else {
+					move.setFrom(new Coordinate(x, y));
+					try {
+						piece.isMovePossible(move);
+						isAnyPieceBlocking(move);
+					} catch (InvalidMoveException e) {
+						continue;
+					}
+					result = true;
+					break;
+				}
+			}
+		}
+		return result;
+	}
+
+	private Coordinate findCurrentKingPosition(Color kingColor) {
+		Coordinate current_king_position = null;
+		for (int x = 0; x < Board.SIZE; x++) {
+			for (int y = 0; y < Board.SIZE; y++) {
+				Piece piece = board.getPieceAt(new Coordinate(x, y));
+				if (piece == null)
+					continue;
+				else if (piece.getColor() == kingColor && piece.getType() == PieceType.KING) {
 					current_king_position = new Coordinate(x, y);
 				}
 			}
 
 		}
-
-		for (int x = 0; x < Board.SIZE; x++) {
-			for (int y = 0; y < Board.SIZE; y++) {
-				if (pieces[x][y] == null)
-					continue;
-				else if (pieces[x][y].verifyIfMoveIsPossible(new Coordinate(x, y), current_king_position)) {
-					result = true;
-					break;
-				}
-			}
-
-		}
-
-		return result;
+		return current_king_position;
 	}
 
 	private boolean isAnyMoveValid(Color nextMoveColor) {

@@ -43,9 +43,9 @@ public class Board {
 	}
 	
 	/**
-	 * Sets chess piece on board based on given coordinates
+	 * Sets chess this on board based on given coordinates
 	 * 
-	 * @param piece chess piece
+	 * @param this chess this
 	 * @param board chess board
 	 * @param coordinate given coordinates
 	 */
@@ -54,10 +54,10 @@ public class Board {
 	}
 	
 	/**
-	 * Gets chess piece from board based on given coordinates
+	 * Gets chess this from board based on given coordinates
 	 * 
 	 * @param coordinate given coordinates
-	 * @return chess piece
+	 * @return chess this
 	 */
 	public Piece getPieceAt(Coordinate coordinate) {
 		return pieces[coordinate.getX()][coordinate.getY()];

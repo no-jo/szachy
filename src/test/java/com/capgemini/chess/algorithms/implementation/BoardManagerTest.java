@@ -669,7 +669,6 @@ public class BoardManagerTest {
 	}
 	
 	@Test
-	@Ignore
 	public void testPerformMoveInvalidLongCastlingWithPiecesBetween() {
 		// given
 		Board board = new Board();
@@ -714,7 +713,6 @@ public class BoardManagerTest {
 	}
 	
 	@Test
-	@Ignore
 	public void testPerformMoveInvalidKingWouldBeChecked() {
 		// given
 		Board board = new Board();
