@@ -691,8 +691,6 @@ public class BoardManagerTest {
 	}
 	
 	@Test
-	@Ignore
-	////////////////////////////////////////////////////////////////////////////////////////////
 	public void testPerformMoveInvalidCastlingKingUnderCheck() {
 		// given
 		Board board = new Board();
@@ -757,7 +755,6 @@ public class BoardManagerTest {
 	}
 	
 	@Test
-	@Ignore
 	public void testUpdateBoardStateRegular() throws InvalidMoveException {
 		// given
 		BoardManager boardManager = new BoardManager();
@@ -770,7 +767,6 @@ public class BoardManagerTest {
 	}
 	
 	@Test
-	@Ignore
 	public void testUpdateBoardStateCheck() throws InvalidMoveException {
 		// given
 		Board board = new Board();
@@ -787,7 +783,6 @@ public class BoardManagerTest {
 	}
 	
 	@Test
-	@Ignore
 	public void testUpdateBoardStateCheckMate() throws InvalidMoveException {
 		// given
 		Board board = new Board();
@@ -805,7 +800,6 @@ public class BoardManagerTest {
 	}
 	
 	@Test
-	@Ignore
 	public void testUpdateBoardStateStaleMate() throws InvalidMoveException {
 		// given
 		Board board = new Board();
