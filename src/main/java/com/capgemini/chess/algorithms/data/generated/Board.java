@@ -20,7 +20,6 @@ public class Board {
 	public static final int SIZE = 8;
 	
 	private Piece[][] pieces = new Piece[SIZE][SIZE];
-	//private ChessPiece[][] pieces = new ChessPiece[SIZE][SIZE];
 	private List<Move> moveHistory = new ArrayList<>();
 	private BoardState state;
 	

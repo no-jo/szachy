@@ -1,9 +1,5 @@
 package com.capgemini.chess.algorithms.implementation;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -239,7 +235,6 @@ public class BoardManager {
 	}
 
 	private Move validateMove(Coordinate from, Coordinate to) throws InvalidMoveException, KingInCheckException {
-		// TODO please add implementation here
 
 		if (to.getX() > Board.SIZE - 1 || to.getX() < 0 || to.getY() > Board.SIZE - 1 || to.getY() < 0) {
 			throw new InvalidMoveException("Move out of bounds");
@@ -251,6 +246,8 @@ public class BoardManager {
 		Piece piece = board.getPieceAt(from);
 		if (piece == null) {
 			throw new InvalidMoveException("No piece to move in this position");
+		} else if (calculateNextMoveColor() != piece.getColor()) {
+			throw new InvalidMoveException("The same color cannot move twice");
 		}
 
 		Move result = new Move();
@@ -274,17 +271,20 @@ public class BoardManager {
 				result.setType(MoveType.CASTLING);
 			}
 			if (result.getType() == MoveType.CASTLING) {
-				//if (board.getPieceAt(to).getType() == )
+				// if (board.getPieceAt(to).getType() == )
 				boolean hasKingMoved = false;
 				boolean hasRookMoved = false;
-				//TODO sprawdzenie czy zadne pole przez ktore przechodzi krol nie jest szachowane
+				// TODO sprawdzenie czy zadne pole przez ktore przechodzi krol
+				// nie jest szachowane
 				for (Move move : this.board.getMoveHistory()) {
 					if (piece.getColor() == Color.WHITE && move.getMovedPiece().getType() == piece.getType()
-							&& move.getMovedPiece().getColor() == piece.getColor() && move.getFrom().equals(new Coordinate(4, 0))) {
+							&& move.getMovedPiece().getColor() == piece.getColor()
+							&& move.getFrom().equals(new Coordinate(4, 0))) {
 						hasKingMoved = true;
 					}
 					if (piece.getColor() == Color.BLACK && move.getMovedPiece().getType() == piece.getType()
-							&& move.getMovedPiece().getColor() == piece.getColor() && move.getFrom().equals(new Coordinate(4, 7))) {
+							&& move.getMovedPiece().getColor() == piece.getColor()
+							&& move.getFrom().equals(new Coordinate(4, 7))) {
 						hasKingMoved = true;
 					}
 					if (piece.getColor() == Color.WHITE && move.getMovedPiece().getType() == PieceType.ROOK
@@ -348,9 +348,8 @@ public class BoardManager {
 
 		}
 
-		// if (possibleMoves == null || !possibleMoves.contains(to)) {
-		// throw new InvalidMoveException("Null in possible moves");
-		// }
+		if (isAnyPieceBlocking(result))
+			throw new InvalidMoveException();
 
 		board.setPieceAt(piece, to);
 		board.setPieceAt(null, from);
@@ -367,6 +366,41 @@ public class BoardManager {
 		return result;
 	}
 
+	private boolean isAnyPieceBlocking(Move move) {
+
+		Coordinate to = move.getTo();
+		Coordinate from = move.getFrom();
+
+		if (move.getMovedPiece().getType() == PieceType.KNIGHT) {
+			return false;
+		}
+
+		int deltaX = Math.abs(from.getX() - to.getX());
+		int deltaY = Math.abs(from.getY() - to.getY());
+
+		if (deltaY == 0) {
+			int iter_start = from.getX() < to.getX() ? from.getX() : to.getX();
+			for (int i = iter_start + 1; i < iter_start + deltaX; i++) {
+				if (board.getPieceAt(new Coordinate(i, from.getY())) != null)
+					return true;
+			}
+		} else if (deltaX == 0) {
+			int iter_start = from.getY() < to.getY() ? from.getY() : to.getY();
+			for (int i = iter_start + 1; i < iter_start + deltaY; i++) {
+				if (board.getPieceAt(new Coordinate(from.getX(), i)) != null)
+					return true;
+			}
+		} else {
+			int iter_start = from.getY() < to.getY() ? from.getY() : to.getY();
+			int start = from.getX() < to.getX() ? from.getX() : to.getX();
+			for (int i = iter_start + 1, k = start + 1; i < iter_start + deltaY; i++, k++) {
+				if (board.getPieceAt(new Coordinate(k, i)) != null)
+					return true;
+			}
+		}
+		return false;
+	}
+
 	private boolean getPossibleKingPosition(Coordinate from, Coordinate to) {
 		if (Math.abs(from.getX() - to.getX()) <= 1 && Math.abs(from.getY() - to.getY()) <= 1)
 			return true;
@@ -375,8 +409,7 @@ public class BoardManager {
 	}
 
 	private boolean getPossiblePawnAttackPosition(Coordinate from, Coordinate to, Color color) {
-		// TODO add check for capturing backward black and white need to move in
-		// opposite directions
+
 		if (color == Color.WHITE && from.getY() == 1 && to.getY() == 3 && Math.abs(from.getX() - to.getX()) == 0)
 			return true;
 		if (color == Color.BLACK && from.getY() == 6 && to.getY() == 4 && Math.abs(from.getX() - to.getX()) == 0)
@@ -438,7 +471,6 @@ public class BoardManager {
 
 	private boolean isKingInCheck(Color kingColor) {
 
-		List<Coordinate> possible_captures = new ArrayList<Coordinate>();
 		Coordinate current_king_position = null;
 		boolean result = false;
 		Piece[][] pieces = this.board.getPieces();
@@ -449,20 +481,23 @@ public class BoardManager {
 					continue;
 				else if (pieces[x][y].getColor() == kingColor && pieces[x][y].getType() == PieceType.KING) {
 					current_king_position = new Coordinate(x, y);
-				} else if (pieces[x][y].getColor() != kingColor) {
-					// possible_captures += pieces[x][y] get possible captures
-					// list;//TODO sprawdzic czy bierka moze wykonac ruch na
-					// krola - zapetlenie z validate move ?
 				}
 			}
+
 		}
 
-		if (!possible_captures.isEmpty() && possible_captures.contains(current_king_position)) {
-			result = true;
-		} else {
-			result = false;
+		for (int x = 0; x < Board.SIZE; x++) {
+			for (int y = 0; y < Board.SIZE; y++) {
+				if (pieces[x][y] == null)
+					continue;
+				else if (pieces[x][y].verifyIfMoveIsPossible(new Coordinate(x, y), current_king_position)) {
+					result = true;
+					break;
+				}
+			}
+
 		}
-		// TODO please add implementation here
+
 		return result;
 	}
 

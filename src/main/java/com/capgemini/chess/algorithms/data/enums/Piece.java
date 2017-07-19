@@ -1,5 +1,7 @@
 package com.capgemini.chess.algorithms.data.enums;
 
+import com.capgemini.chess.algorithms.data.Coordinate;
+
 /**
  * Chess piece definition
  * 
@@ -35,5 +37,10 @@ public enum Piece {
 
 	public Color getColor() {
 		return color;
+	}
+	
+	public boolean verifyIfMoveIsPossible(Coordinate from, Coordinate to) {
+		return false;	
+	
 	}
 }

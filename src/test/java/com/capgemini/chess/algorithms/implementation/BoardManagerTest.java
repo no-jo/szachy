@@ -347,7 +347,6 @@ public class BoardManagerTest {
 	}
 	
 	@Test
-	@Ignore
 	public void testPerformMoveInvalidMoveOrder() {
 		// given
 		Board board = new Board();
@@ -539,7 +538,6 @@ public class BoardManagerTest {
 	}
 	
 	@Test
-	@Ignore
 	public void testPerformMoveInvalidQueenLeapsOver() {
 		// given
 		Board board = new Board();
@@ -560,7 +558,6 @@ public class BoardManagerTest {
 	}
 	
 	@Test
-	@Ignore
 	public void testPerformMoveInvalidRookLeapsOver() {
 		// given
 		Board board = new Board();
@@ -651,8 +648,7 @@ public class BoardManagerTest {
 	}
 	
 	@Test
-	@Ignore
-	public void testPerformMoveInvalidCastlingWithPiecesBetween() {
+	public void testPerformMoveInvalidShortCastlingWithPiecesBetween() {
 		// given
 		Board board = new Board();
 		board.setPieceAt(Piece.WHITE_KING, new Coordinate(4, 0));
@@ -664,6 +660,29 @@ public class BoardManagerTest {
 		boolean exceptionThrown = false;
 		try {
 			boardManager.performMove(new Coordinate(4, 0), new Coordinate(6, 0));
+		} catch (InvalidMoveException e) {
+			exceptionThrown = true;
+		}
+		
+		// then 
+		assertTrue(exceptionThrown);
+	}
+	
+	@Test
+	@Ignore
+	public void testPerformMoveInvalidLongCastlingWithPiecesBetween() {
+		// given
+		Board board = new Board();
+		//createDummyMove(board);
+		board.setPieceAt(Piece.WHITE_KING, new Coordinate(4, 0));
+		board.setPieceAt(Piece.WHITE_ROOK, new Coordinate(0, 0));
+		board.setPieceAt(Piece.WHITE_BISHOP, new Coordinate(1, 0));
+		
+		// when
+		BoardManager boardManager = new BoardManager(board);
+		boolean exceptionThrown = false;
+		try {
+			boardManager.performMove(new Coordinate(4, 0), new Coordinate(2, 0));
 		} catch (InvalidMoveException e) {
 			exceptionThrown = true;
 		}
