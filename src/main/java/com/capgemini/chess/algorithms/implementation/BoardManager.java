@@ -267,7 +267,7 @@ public class BoardManager {
 		Piece piece = newMove.getMovedPiece();
 		Coordinate from = newMove.getFrom();
 		Coordinate to = newMove.getFrom();
-		
+
 		board.setPieceAt(piece, to);
 		board.setPieceAt(null, from);
 		if (isKingInCheck(piece.getColor())) { // sprawdzamy czy nasz krol PO
@@ -315,10 +315,10 @@ public class BoardManager {
 
 		CastlingType castlingType = newMove.getFrom().getX() > newMove.getTo().getX() ? CastlingType.QUEENSIDE
 				: CastlingType.KINGSIDE;
-		
-		Piece king = kingIsNotInCheck(newMove);		
-		piecesDidNotMoveBefore(king, castlingType);		
-		noPiecesInBetween(newMove, castlingType);		
+
+		Piece king = kingIsNotInCheck(newMove);
+		piecesDidNotMoveBefore(king, castlingType);
+		noPiecesInBetween(newMove, castlingType);
 		kingDoesNotPassAttackedField(king, castlingType);
 
 	}
@@ -327,13 +327,13 @@ public class BoardManager {
 		int x, y;
 		if (castlingType == CastlingType.QUEENSIDE)
 			x = 3;
-		else 
+		else
 			x = 5;
 		if (king.getColor() == Color.WHITE)
 			y = 0;
 		else
 			y = 7;
-		if (isFieldAttackedByOpponent(king.getColor(), new Coordinate(x,y)))
+		if (isFieldAttackedByOpponent(king.getColor(), new Coordinate(x, y)))
 			throw new InvalidMoveException("King cannot castle throw attacked field");
 	}
 
@@ -348,9 +348,9 @@ public class BoardManager {
 		Move castling_positions = new Move();
 		castling_positions.setFrom(newMove.getFrom());
 		if (castlingType == CastlingType.QUEENSIDE) {
-			castling_positions.setTo(new Coordinate(0,newMove.getTo().getY()));
+			castling_positions.setTo(new Coordinate(0, newMove.getTo().getY()));
 		} else
-			castling_positions.setTo(new Coordinate(7,newMove.getTo().getY()));
+			castling_positions.setTo(new Coordinate(7, newMove.getTo().getY()));
 		if (isAnyPieceBlocking(castling_positions))
 			throw new InvalidMoveException("Cannot castle with pieces in between");
 	}
@@ -380,7 +380,6 @@ public class BoardManager {
 			throw new InvalidMoveException("Rook or king have already moved. Castling not allowed");
 		}
 	}
-	
 
 	private MoveType determineMoveType(Coordinate from, Coordinate to, Piece piece) throws InvalidMoveException {
 		MoveType result;
@@ -446,7 +445,7 @@ public class BoardManager {
 		Move move = new Move();
 		move.setTo(field);
 		move.setType(MoveType.CAPTURE);
-		
+
 		boolean result = false;
 		for (int x = 0; x < Board.SIZE; x++) {
 			for (int y = 0; y < Board.SIZE; y++) {
@@ -470,7 +469,6 @@ public class BoardManager {
 		}
 		return result;
 	}
-	
 
 	private Coordinate findCurrentKingPosition(Color kingColor) {
 		Coordinate current_king_position = null;
@@ -490,8 +488,32 @@ public class BoardManager {
 
 	private boolean isAnyMoveValid(Color nextMoveColor) {
 
-		// TODO please add implementation here
-
+		// TODO this may not be valid for PAWN,
+		// will situation happen when valid moves depend only on pawn attack vs
+		// capture
+		boolean ee = false;
+		for (int x = 0; x < Board.SIZE; x++) {
+			for (int y = 0; y < Board.SIZE; y++) {
+				Piece piece = board.getPieceAt(new Coordinate(x, y));
+				if (piece == null)
+					continue;
+				else if (piece.getColor() != nextMoveColor) {
+					continue;
+				} else {
+					for (int xx = 0; xx < Board.SIZE; xx++) {
+						for (int yy = 0; yy < Board.SIZE; yy++) {
+							try {
+								validateMove(new Coordinate(x, y), new Coordinate(xx, yy));
+							} catch (InvalidMoveException e) {
+								ee = true;
+							}
+							if (!ee)
+								return false;
+						}
+					}
+				}
+			}
+		}
 		return true;
 	}
 
