@@ -72,6 +72,7 @@ public enum Piece {
 		{
 			if (!getPossibleRookPosition(from, to))
 				throw new InvalidMoveException("Wrong rook move");
+			
 		} else if ((this == Piece.WHITE_PAWN || this == Piece.BLACK_PAWN)
 				&& newMove.getType() != MoveType.EN_PASSANT) {
 			if (newMove.getType() == MoveType.CAPTURE) {
@@ -107,7 +108,6 @@ public enum Piece {
 	}
 
 	private boolean getPossiblePawnCapturePosition(Coordinate from, Coordinate to, Color color) {
-		// TODO add test for backward capture
 		if (color == Color.WHITE && Math.abs(from.getX() - to.getX()) == 1 && from.getY() - to.getY() == -1)
 			return true;
 		if (color == Color.BLACK && Math.abs(from.getX() - to.getX()) == 1 && from.getY() - to.getY() == 1)
