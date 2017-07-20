@@ -138,7 +138,6 @@ public enum Piece {
 		if (Math.abs(from.getX() - to.getX()) == Math.abs(from.getY() - to.getY()))
 			return true;
 		else
-			// TODO Auto-generated method stub
 			return false;
 	}
 

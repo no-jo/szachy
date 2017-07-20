@@ -243,6 +243,9 @@ public class BoardManager {
 		Piece piece = board.getPieceAt(from);
 		isFromPieceValid(piece);
 
+		if (from.equals(to))
+			throw new InvalidMoveException("Cannot stay in place");
+
 		Move newMove = new Move();
 		newMove.setMovedPiece(piece);
 		newMove.setFrom(from);
@@ -266,7 +269,7 @@ public class BoardManager {
 	private void willKingBeInCheckAfter(Move newMove) throws KingInCheckException {
 		Piece piece = newMove.getMovedPiece();
 		Coordinate from = newMove.getFrom();
-		Coordinate to = newMove.getFrom();
+		Coordinate to = newMove.getTo();
 
 		board.setPieceAt(piece, to);
 		board.setPieceAt(null, from);
@@ -383,8 +386,9 @@ public class BoardManager {
 
 	private MoveType determineMoveType(Coordinate from, Coordinate to, Piece piece) throws InvalidMoveException {
 		MoveType result;
-
-		if ((piece == Piece.WHITE_KING || piece == Piece.BLACK_KING) && (Math.abs(from.getX() - to.getX()) > 1)) {
+		// TODO change the criteria to classify as castling
+		if ((piece == Piece.WHITE_KING || piece == Piece.BLACK_KING) && from.getX() == 4
+				&& (Math.abs(from.getX() - to.getX()) == 2)) {
 			result = MoveType.CASTLING;
 		} else if (board.getPieceAt(to) == null) {
 			result = (MoveType.ATTACK);
@@ -463,7 +467,7 @@ public class BoardManager {
 					}
 					result = !isAnyPieceBlocking(move);
 					if (result)
-						break; // TODO return result here
+						return result;
 				}
 			}
 		}
@@ -491,7 +495,7 @@ public class BoardManager {
 		// TODO this may not be valid for PAWN,
 		// will situation happen when valid moves depend only on pawn attack vs
 		// capture
-		boolean ee = false;
+
 		for (int x = 0; x < Board.SIZE; x++) {
 			for (int y = 0; y < Board.SIZE; y++) {
 				Piece piece = board.getPieceAt(new Coordinate(x, y));
@@ -502,19 +506,19 @@ public class BoardManager {
 				} else {
 					for (int xx = 0; xx < Board.SIZE; xx++) {
 						for (int yy = 0; yy < Board.SIZE; yy++) {
+
 							try {
 								validateMove(new Coordinate(x, y), new Coordinate(xx, yy));
+								return true;
 							} catch (InvalidMoveException e) {
-								ee = true;
+								continue;
 							}
-							if (!ee)
-								return false;
 						}
 					}
 				}
 			}
 		}
-		return true;
+		return false;
 	}
 
 	private Color calculateNextMoveColor() {

@@ -1,11 +1,14 @@
 package com.capgemini.chess.algorithms.implementation;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.capgemini.chess.algorithms.data.Coordinate;
@@ -790,6 +793,7 @@ public class BoardManagerTest {
 		board.setPieceAt(Piece.WHITE_ROOK, new Coordinate(0, 1));
 		board.setPieceAt(Piece.WHITE_ROOK, new Coordinate(1, 0));
 		board.setPieceAt(Piece.BLACK_KING, new Coordinate(4, 0));
+
 		
 		// when
 		BoardManager boardManager = new BoardManager(board);
@@ -799,9 +803,28 @@ public class BoardManagerTest {
 		assertEquals(BoardState.CHECK_MATE, boardState);
 	}
 	
+//	@Test
+//	public void shouldKingBeInCheckMate() throws InvalidMoveException {
+//		// given
+//		Board board = new Board();
+//		board.getMoveHistory().add(createDummyMove(board));
+//
+//		board.setPieceAt(Piece.WHITE_KING, new Coordinate(5, 4));
+//		board.setPieceAt(Piece.WHITE_ROOK, new Coordinate(7, 0));
+//		board.setPieceAt(Piece.BLACK_KING, new Coordinate(7, 4));
+//		
+//		// when
+//		BoardManager boardManager = new BoardManager(board);
+//		BoardState boardState = boardManager.updateBoardState();
+//		
+//		// then
+//		assertEquals(BoardState.CHECK_MATE, boardState);
+//	}
+	
 	@Test
 	public void testUpdateBoardStateStaleMate() throws InvalidMoveException {
 		// given
+		//probably error in test ->
 		Board board = new Board();
 		board.getMoveHistory().add(createDummyMove(board));
 		board.setPieceAt(Piece.BLACK_KING, new Coordinate(7, 0));
