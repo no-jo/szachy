@@ -1,48 +1,55 @@
 package com.capgemini.chess.algorithms.chesspiecestests;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import com.capgemini.chess.algorithms.chesspieces.King;
-import com.capgemini.chess.algorithms.chesspieces.Pawn;
+import com.capgemini.chess.algorithms.chesspieces.Piece;
 import com.capgemini.chess.algorithms.chesspieces.Queen;
 import com.capgemini.chess.algorithms.data.Coordinate;
-import com.capgemini.chess.algorithms.data.Move;
 import com.capgemini.chess.algorithms.data.enums.Color;
-import com.capgemini.chess.algorithms.data.enums.MoveType;
-import com.capgemini.chess.algorithms.data.generated.Board;
-import com.capgemini.chess.algorithms.implementation.BoardManager;
 import com.capgemini.chess.algorithms.implementation.exceptions.InvalidMoveException;
 
 public class QueenTest {
+	
+	Piece queen =  new Queen(Color.BLACK);
 
 	@Test
-	public void shouldQueenCaptureSuccessfully() throws InvalidMoveException {
+	public void shouldQueenMoveSuccessfully() throws InvalidMoveException {
 		// given
-		Board board = new Board();
-		board.setPieceAt(new Queen(Color.WHITE), new Coordinate(5, 0));
-		board.setPieceAt(new Pawn(Color.BLACK), new Coordinate(7, 2));
-		board.setPieceAt(new King(Color.WHITE), new Coordinate(0, 0));
-		BoardManager boardManager = new BoardManager(board);
+		Coordinate from = new Coordinate(5, 0);
+		Coordinate to = new Coordinate(7, 2);
 
 		// when
-		Move move = boardManager.performMove(new Coordinate(5, 0), new Coordinate(7, 2));
+		queen.isAttackPossible(from, to);
+		queen.isCapturePossible(from, to);
 
 		// then
-		assertEquals(MoveType.CAPTURE, move.getType());
-		assertEquals(new Queen(Color.WHITE), move.getMovedPiece());
+		assertTrue(true);
 	}
 
 	@Test(expected = InvalidMoveException.class)
 	public void shouldQueenNotAttack() throws InvalidMoveException {
 		// given
-		Board board = new Board();
-		board.setPieceAt(new Queen(Color.WHITE), new Coordinate(5, 0));
-		BoardManager boardManager = new BoardManager(board);
+		Coordinate from = new Coordinate(5, 0);
+		Coordinate to = new Coordinate(4, 2);
 
 		// when
-		boardManager.performMove(new Coordinate(5, 0), new Coordinate(4, 2));
+		queen.isAttackPossible(from, to);
+		queen.isCapturePossible(from, to);
+
+		// then expect exception
+	}
+	
+	@Test(expected = InvalidMoveException.class)
+	public void shouldQueenNotMove() throws InvalidMoveException {
+		// given
+		Coordinate from = new Coordinate(5, 0);
+		Coordinate to = new Coordinate(6, 3);
+
+		// when
+		queen.isAttackPossible(from, to);
+		queen.isCapturePossible(from, to);
 
 		// then expect exception
 	}

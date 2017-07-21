@@ -20,14 +20,14 @@ public class Bishop extends Piece {
 	@Override
 	public void isAttackPossible(Coordinate from, Coordinate to) throws InvalidMoveException {
 		if (!isMovePossible (from, to))
-			throw new InvalidMoveException("Bishop tried to attack too far");
+			throw new InvalidMoveException("Bishop illegal attack");
 
 	}
 
 	@Override
 	public void isCapturePossible(Coordinate from, Coordinate to) throws InvalidMoveException {
 		if (!isMovePossible (from, to))
-			throw new InvalidMoveException("Bishop tried to attack too far");
+			throw new InvalidMoveException("Bishop illegal capture");
 
 	}
 

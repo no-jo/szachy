@@ -21,10 +21,10 @@ public class Pawn extends Piece {
 	public void isAttackPossible(Coordinate from, Coordinate to) throws InvalidMoveException {
 		if (this.color.equals(Color.WHITE)) {
 			if (!isWhiteAttackPossible(from, to))
-				throw new InvalidMoveException();
+				throw new InvalidMoveException("Invalid pawn attack");
 		} else {
 			if (!isBlackAttackPossible(from, to))
-				throw new InvalidMoveException();
+				throw new InvalidMoveException("Invalid pawn attack");
 		}
 	}
 
@@ -32,10 +32,10 @@ public class Pawn extends Piece {
 	public void isCapturePossible(Coordinate from, Coordinate to) throws InvalidMoveException {
 		if (this.color.equals(Color.WHITE)) {
 			if (!isWhiteCapturePossible(from, to))
-				throw new InvalidMoveException();
+				throw new InvalidMoveException("Invalid pawn capture");
 		} else {
 			if (!isBlackCapturePossible(from, to))
-				throw new InvalidMoveException();
+				throw new InvalidMoveException("Invalid pawn capture");
 		}
 
 	}

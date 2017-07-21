@@ -1,61 +1,52 @@
 package com.capgemini.chess.algorithms.chesspiecestests;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import com.capgemini.chess.algorithms.chesspieces.King;
 import com.capgemini.chess.algorithms.chesspieces.Pawn;
-import com.capgemini.chess.algorithms.chesspieces.Rook;
+import com.capgemini.chess.algorithms.chesspieces.Piece;
 import com.capgemini.chess.algorithms.data.Coordinate;
-import com.capgemini.chess.algorithms.data.Move;
 import com.capgemini.chess.algorithms.data.enums.Color;
-import com.capgemini.chess.algorithms.data.enums.MoveType;
-import com.capgemini.chess.algorithms.data.generated.Board;
-import com.capgemini.chess.algorithms.implementation.BoardManager;
 import com.capgemini.chess.algorithms.implementation.exceptions.InvalidMoveException;
 
 public class PawnTest {
+	
+	Piece blackPawn = new Pawn(Color.BLACK);
+	Piece whitePawn = new Pawn(Color.WHITE);
 
 	@Test
 	public void shouldPawnAttackCorrectly() throws InvalidMoveException {
 		// given
-		Board board = new Board();
-		board.getMoveHistory().add(createDummyMove(board));
-		board.setPieceAt(new Pawn(Color.BLACK), new Coordinate(4, 6));
-		board.setPieceAt(new King(Color.BLACK), new Coordinate(7, 7));
-		BoardManager boardManager = new BoardManager(board);
+		Coordinate from = new Coordinate(4, 6);
+		Coordinate to = new Coordinate(4, 4);
 
 		// when
-		Move move = boardManager.performMove(new Coordinate(4, 6), new Coordinate(4, 4));
+		blackPawn.isAttackPossible(from, to);
 
 		// then
-		assertEquals(MoveType.ATTACK, move.getType());
-		assertEquals(new Pawn(Color.BLACK), move.getMovedPiece());
+		assertTrue(true);
 	}
 	
 	@Test(expected = InvalidMoveException.class)
 	public void shouldPawnNotAttackBackwards() throws InvalidMoveException {
 		// given
-		Board board = new Board();
-		board.setPieceAt(new Pawn(Color.WHITE), new Coordinate(1, 2));
-		BoardManager boardManager = new BoardManager(board);
+		Coordinate from = new Coordinate(1, 2);
+		Coordinate to = new Coordinate(1, 1);
 
 		// when
-		boardManager.performMove(new Coordinate(1, 2), new Coordinate(1, 1));
-		
+		whitePawn.isAttackPossible(from, to);
 		//then exception
 	}
 	
 	@Test(expected = InvalidMoveException.class)
 	public void shouldPawnNotAttackPerpendicular() throws InvalidMoveException {
 		// given
-		Board board = new Board();
-		board.setPieceAt(new Pawn(Color.WHITE), new Coordinate(1, 2));
-		BoardManager boardManager = new BoardManager(board);
+		Coordinate from = new Coordinate(1, 2);
+		Coordinate to = new Coordinate(0, 3);
 
 		// when
-		boardManager.performMove(new Coordinate(1, 2), new Coordinate(0, 3));
+		blackPawn.isAttackPossible(from, to);
 		
 		//then exception
 	}
@@ -63,12 +54,11 @@ public class PawnTest {
 	@Test(expected = InvalidMoveException.class)
 	public void shouldPawnNotMoveTooFar() throws InvalidMoveException {
 		// given
-		Board board = new Board();
-		board.setPieceAt(new Pawn(Color.WHITE), new Coordinate(1, 2));
-		BoardManager boardManager = new BoardManager(board);
+		Coordinate from = new Coordinate(1, 2);
+		Coordinate to = new Coordinate(1, 4);
 
 		// when
-		boardManager.performMove(new Coordinate(1, 2), new Coordinate(1, 4));
+		whitePawn.isAttackPossible(from, to);
 		
 		//then exception
 	}
@@ -76,13 +66,11 @@ public class PawnTest {
 	@Test(expected = InvalidMoveException.class)
 	public void shouldPawnNotCaptureAhead() throws InvalidMoveException {
 		// given
-		Board board = new Board();
-		board.setPieceAt(new Pawn(Color.WHITE), new Coordinate(1, 2));
-		board.setPieceAt(new Pawn(Color.BLACK), new Coordinate(1, 3));
-		BoardManager boardManager = new BoardManager(board);
+		Coordinate from = new Coordinate(1, 2);
+		Coordinate to = new Coordinate(1, 3);
 
 		// when
-		boardManager.performMove(new Coordinate(1, 2), new Coordinate(1, 3));
+		whitePawn.isCapturePossible(from, to);
 		
 		//then exception
 	}
@@ -90,33 +78,13 @@ public class PawnTest {
 	@Test(expected = InvalidMoveException.class)
 	public void shouldPawnNotCaptureBackwards() throws InvalidMoveException {
 		// given
-		Board board = new Board();
-		board.setPieceAt(new Pawn(Color.WHITE), new Coordinate(2, 4));
-		board.setPieceAt(new Pawn(Color.BLACK), new Coordinate(1, 3));
-		BoardManager boardManager = new BoardManager(board);
+		Coordinate from = new Coordinate(5, 5);
+		Coordinate to = new Coordinate(4, 4);
 
 		// when
-		boardManager.performMove(new Coordinate(1, 2), new Coordinate(1, 3));
+		whitePawn.isCapturePossible(from, to);
 		
 		//then exception
-	}
-	
-	private Move createDummyMove(Board board) {
-
-		Move move = new Move();
-
-		if (board.getMoveHistory().size() % 2 == 0) {
-			board.setPieceAt(new Rook(Color.WHITE), new Coordinate(0, 0));
-			move.setMovedPiece(new Rook(Color.WHITE));
-		} else {
-			board.setPieceAt(new Rook(Color.BLACK), new Coordinate(0, 0));
-			move.setMovedPiece(new Rook(Color.BLACK));
-		}
-		move.setFrom(new Coordinate(0, 0));
-		move.setTo(new Coordinate(0, 0));
-		move.setType(MoveType.ATTACK);
-		board.setPieceAt(null, new Coordinate(0, 0));
-		return move;
 	}
 
 }

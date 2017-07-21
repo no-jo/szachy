@@ -1,52 +1,58 @@
 package com.capgemini.chess.algorithms.chesspiecestests;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
 import com.capgemini.chess.algorithms.chesspieces.Bishop;
-import com.capgemini.chess.algorithms.chesspieces.King;
+import com.capgemini.chess.algorithms.chesspieces.Piece;
 import com.capgemini.chess.algorithms.data.Coordinate;
-import com.capgemini.chess.algorithms.data.Move;
 import com.capgemini.chess.algorithms.data.enums.Color;
-import com.capgemini.chess.algorithms.data.enums.MoveType;
-import com.capgemini.chess.algorithms.data.generated.Board;
-import com.capgemini.chess.algorithms.implementation.BoardManager;
 import com.capgemini.chess.algorithms.implementation.exceptions.InvalidMoveException;
 
 /**
- * @author JOANNANO
- * Class testing class Bishop (implementation of bishop movements).
+ * @author JOANNANO Class testing class Bishop (implementation of bishop
+ *         movements).
  */
 public class BishopTest {
-	
+
+	Piece bishop = new Bishop(Color.BLACK);
+
 	@Test
-	public void testPerformMoveBishopAttack() throws InvalidMoveException {
+	public void shouldBishopMoveCorrectly() throws InvalidMoveException {
 		// given
-		Board board = new Board();
-		board.setPieceAt(new Bishop(Color.WHITE), new Coordinate(0, 6));
-		board.setPieceAt(new King(Color.WHITE), new Coordinate(0, 0));
-		BoardManager boardManager = new BoardManager(board);
+		Coordinate from = new Coordinate(0, 6);
+		Coordinate to = new Coordinate(6, 0);
 
 		// when
-		Move move = boardManager.performMove(new Coordinate(0, 6), new Coordinate(6, 0));
+		bishop.isAttackPossible(from, to);
+		bishop.isCapturePossible(from, to);
 
 		// then
-		assertEquals(MoveType.ATTACK, move.getType());
-		assertEquals(new Bishop(Color.WHITE), move.getMovedPiece());
+		assertTrue(true);
 	}
 
 	@Test(expected = InvalidMoveException.class)
-	public void testPerformMoveInvalidBishopDestination() throws InvalidMoveException {
+	public void shouldBishopNotCaptureStright() throws InvalidMoveException {
 		// given
-		Board board = new Board();
-		board.setPieceAt(new Bishop(Color.WHITE), new Coordinate(1, 1));
-		BoardManager boardManager = new BoardManager(board);
+		Coordinate from = new Coordinate(1, 1);
+		Coordinate to = new Coordinate(1, 2);
 
 		// when
-		boardManager.performMove(new Coordinate(1, 1), new Coordinate(1, 2));
-		
-		//then exception
+		bishop.isCapturePossible(from, to);
 
+		// then exception
+	}
+	
+	@Test(expected = InvalidMoveException.class)
+	public void shouldBishopNotAttackStright() throws InvalidMoveException {
+		// given
+		Coordinate from = new Coordinate(1, 1);
+		Coordinate to = new Coordinate(1, 0);
+
+		// when
+		bishop.isAttackPossible(from, to);
+
+		// then exception
 	}
 }

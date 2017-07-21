@@ -20,14 +20,14 @@ public class Queen extends Piece {
 	@Override
 	public void isAttackPossible(Coordinate from, Coordinate to) throws InvalidMoveException {
 		if (!isMovePossible (from, to))
-			throw new InvalidMoveException("Queen tried illegal attack");
+			throw new InvalidMoveException("Queen illegal attack");
 
 	}
 
 	@Override
 	public void isCapturePossible(Coordinate from, Coordinate to) throws InvalidMoveException {
 		if (!isMovePossible (from, to))
-			throw new InvalidMoveException("Queen tried illegal capture");
+			throw new InvalidMoveException("Queen illegal capture");
 
 	}
 	

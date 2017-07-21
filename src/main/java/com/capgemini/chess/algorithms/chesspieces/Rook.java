@@ -20,13 +20,13 @@ public class Rook extends Piece {
 	@Override
 	public void isAttackPossible(Coordinate from, Coordinate to) throws InvalidMoveException {
 		if (!isMovePossible (from, to))
-			throw new InvalidMoveException("Bishop tried to attack too far");
+			throw new InvalidMoveException("Invalid rook attack");
 	}
 
 	@Override
 	public void isCapturePossible(Coordinate from, Coordinate to) throws InvalidMoveException {
 		if (!isMovePossible (from, to))
-			throw new InvalidMoveException("Bishop tried to attack too far");
+			throw new InvalidMoveException("Invalid rook capture");
 	}
 
 	private boolean isMovePossible(Coordinate from, Coordinate to) {
