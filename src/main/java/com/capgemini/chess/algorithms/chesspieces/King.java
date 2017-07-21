@@ -5,10 +5,18 @@ import com.capgemini.chess.algorithms.data.enums.Color;
 import com.capgemini.chess.algorithms.data.enums.PieceType;
 import com.capgemini.chess.algorithms.implementation.exceptions.InvalidMoveException;
 
+/**
+ * @author JOANNANO
+ * Class implementing specific movements of King chess piece.
+ */
 public class King extends Piece {
 	
 	final PieceType type = PieceType.KING;
 
+	/**
+	 * Sole constructor to ensure piece always has its
+	 * @param color
+	 */
 	public King(Color color) {
 		super(color);
 	}
