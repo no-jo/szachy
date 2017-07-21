@@ -12,7 +12,6 @@ import com.capgemini.chess.algorithms.chesspieces.Queen;
 import com.capgemini.chess.algorithms.chesspieces.Rook;
 import com.capgemini.chess.algorithms.data.Coordinate;
 import com.capgemini.chess.algorithms.data.enums.BoardState;
-import com.capgemini.chess.algorithms.data.enums.CastlingType;
 import com.capgemini.chess.algorithms.data.enums.Color;
 import com.capgemini.chess.algorithms.data.enums.MoveType;
 import com.capgemini.chess.algorithms.data.enums.PieceType;
@@ -261,16 +260,10 @@ public class BoardManager {
 	private Move validateMove(Coordinate from, Coordinate to) throws InvalidMoveException, KingInCheckException {
 
 		areCoordinatesInBounds(from, to);
-		isFromDifferentThanTo(from, to);
 
-		Piece piece = isFromPieceCorrectColor(from);
+		isFromPieceCorrectColor(from);
 
-		Move newMove = determineMoveType(from, to, piece);
-		
-		if (newMove.getType() == MoveType.ATTACK)
-		piece.isAttackPossible(from, to);
-		if (newMove.getType() == MoveType.CAPTURE)
-		piece.isCapturePossible(from, to);
+		Move newMove = Move.createNewMove(from, to, board);
 		
 		isAnyPieceBlocking(from, to);
 		willKingBeInCheckAfter(newMove);
@@ -278,10 +271,7 @@ public class BoardManager {
 		return newMove;
 	}
 
-	private void isFromDifferentThanTo(Coordinate from, Coordinate to) throws InvalidMoveException {
-		if (from.equals(to))
-			throw new InvalidMoveException("Cannot stay in place");
-	}
+
 
 	private void willKingBeInCheckAfter(Move newMove) throws KingInCheckException, NoKingOnTheBoard {
 		Piece piece = newMove.getMovedPiece();
@@ -327,108 +317,9 @@ public class BoardManager {
 		}
 	}
 
-	private void verifyCastlingConditions(Move newMove) throws InvalidMoveException {
 
-		CastlingType castlingType = newMove.getFrom().getX() > newMove.getTo().getX() ? CastlingType.QUEENSIDE
-				: CastlingType.KINGSIDE;
 
-		if (isKingInCheck(newMove.getMovedPiece().getColor()))
-			throw new InvalidMoveException("King under check cannot castle");
-		piecesDidNotMoveBefore(newMove, castlingType);
-		noPiecesInBetween(newMove, castlingType);
-		kingDoesNotPassAttackedField(newMove, castlingType);
-
-	}
-
-	private void kingDoesNotPassAttackedField(Move newMove, CastlingType castlingType) throws InvalidMoveException {
-		int x, y;
-		if (castlingType == CastlingType.QUEENSIDE) {
-			x = 3;
-		} else {
-			x = 5;
-		}
-		if (newMove.getMovedPiece().getColor() == Color.WHITE) {
-			y = 0;
-		} else {
-			y = 7;
-		}
-		if (isFieldAttackedByOpponent(newMove.getMovedPiece().getColor(), new Coordinate(x, y))) {
-			throw new InvalidMoveException("King cannot castle throw attacked field");
-		}
-	}
-
-	private void noPiecesInBetween(Move newMove, CastlingType castlingType) throws InvalidMoveException {
-		Coordinate to;
-		if (castlingType == CastlingType.QUEENSIDE) {
-			to = new Coordinate(0, newMove.getTo().getY());
-		} else
-			to = new Coordinate(7, newMove.getTo().getY());
-		isAnyPieceBlocking(newMove.getFrom(), to);
-	}
-
-	private void piecesDidNotMoveBefore(Move newMove, CastlingType castlingType) throws InvalidMoveException {
-		boolean hasKingMoved = false;
-		boolean hasRookMoved = false;
-
-		for (Move move : this.board.getMoveHistory()) {
-			if (move.getMovedPiece().getType() == newMove.getMovedPiece().getType()
-					&& move.getMovedPiece().getColor() == newMove.getMovedPiece().getColor()) {
-				hasKingMoved = true;
-			}
-
-			if (castlingType == CastlingType.QUEENSIDE
-					&& move.getMovedPiece().getColor() == newMove.getMovedPiece().getColor()
-					&& move.getMovedPiece().getType() == PieceType.ROOK && move.getFrom().getX() == 0) {
-				hasRookMoved = true;
-			}
-
-			if (castlingType == CastlingType.KINGSIDE
-					&& move.getMovedPiece().getColor() == newMove.getMovedPiece().getColor()
-					&& move.getMovedPiece().getType() == PieceType.ROOK && move.getFrom().getX() == 7) {
-				hasRookMoved = true;
-			}
-		}
-
-		if (hasKingMoved || hasRookMoved) {
-			throw new InvalidMoveException("Rook or king have already moved. Castling not allowed");
-		}
-	}
-
-	private Move determineMoveType(Coordinate from, Coordinate to, Piece piece) throws InvalidMoveException {
-		Move result = new Move();
-		result.setFrom(from);
-		result.setTo(to);
-		result.setMovedPiece(piece);
-
-		if (board.getPieceAt(to) == null) {
-			result.setType(MoveType.ATTACK);
-		} else if (board.getPieceAt(to).getColor() != piece.getColor()) {
-			result.setType(MoveType.CAPTURE);
-		} else if (board.getPieceAt(to).getColor() == piece.getColor()) {
-			throw new InvalidMoveException("Cannot capture own piece");
-		} else {
-			throw new InvalidMoveException("Cannot classify move");
-		}
-
-		if (piece.getType() == PieceType.KING && from.getX() == 4 && (Math.abs(from.getX() - to.getX()) == 2)) {
-			verifyCastlingConditions(result);
-			result.setType(MoveType.CASTLING);
-		}
-
-		if (piece.getType() == PieceType.PAWN) {
-			if (!this.board.getMoveHistory().isEmpty()) {
-				Move lastMove = this.board.getMoveHistory().get(this.board.getMoveHistory().size() - 1);
-
-				if (from.getX() != to.getX() && lastMove.getMovedPiece().getColor() != piece.getColor()
-						&& lastMove.getMovedPiece().getType() == PieceType.PAWN
-						&& Math.abs(lastMove.getFrom().getY() - lastMove.getTo().getY()) == 2
-						&& Math.abs(lastMove.getTo().getX() - from.getX()) == 1) {
-					result.setType(MoveType.EN_PASSANT);
-				}
-			}
-		}
-		return result;
-	}
+	
 
 	private Piece isFromPieceCorrectColor(Coordinate from) throws InvalidMoveException {
 		Piece piece = board.getPieceAt(from);
