@@ -230,10 +230,10 @@ public class BoardManager {
 	}
 
 	private void performPromotion(Move move, Piece movedPiece) {
-		if (movedPiece.getType() == movedPiece.getType() && move.getTo().getY() == (Board.SIZE - 1)) {
+		if (movedPiece.equals(new Pawn(Color.WHITE)) && move.getTo().getY() == (Board.SIZE - 1)) {
 			this.board.setPieceAt(new Queen(Color.WHITE), move.getTo());
 		}
-		if (movedPiece.getType() == movedPiece.getType() && move.getTo().getY() == 0) {
+		if (movedPiece.equals(new Pawn(Color.BLACK)) && move.getTo().getY() == 0) {
 			this.board.setPieceAt(new Queen(Color.BLACK), move.getTo());
 		}
 	}
@@ -266,8 +266,12 @@ public class BoardManager {
 		Piece piece = isFromPieceCorrectColor(from);
 
 		Move newMove = determineMoveType(from, to, piece);
-
+		
+		if (newMove.getType() == MoveType.ATTACK)
 		piece.isAttackPossible(from, to);
+		if (newMove.getType() == MoveType.CAPTURE)
+		piece.isCapturePossible(from, to);
+		
 		isAnyPieceBlocking(from, to);
 		willKingBeInCheckAfter(newMove);
 
