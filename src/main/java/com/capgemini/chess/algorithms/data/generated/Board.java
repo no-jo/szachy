@@ -3,10 +3,10 @@ package com.capgemini.chess.algorithms.data.generated;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.capgemini.chess.algorithms.chesspieces.Piece;
 import com.capgemini.chess.algorithms.data.Coordinate;
 import com.capgemini.chess.algorithms.data.Move;
 import com.capgemini.chess.algorithms.data.enums.BoardState;
-import com.capgemini.chess.algorithms.data.enums.Piece;
 
 /**
  * Board representation.

@@ -11,11 +11,17 @@ import java.util.List;
 
 import org.junit.Test;
 
+import com.capgemini.chess.algorithms.chesspieces.Bishop;
+import com.capgemini.chess.algorithms.chesspieces.King;
+import com.capgemini.chess.algorithms.chesspieces.Knight;
+import com.capgemini.chess.algorithms.chesspieces.Pawn;
+import com.capgemini.chess.algorithms.chesspieces.Queen;
+import com.capgemini.chess.algorithms.chesspieces.Rook;
 import com.capgemini.chess.algorithms.data.Coordinate;
 import com.capgemini.chess.algorithms.data.Move;
 import com.capgemini.chess.algorithms.data.enums.BoardState;
+import com.capgemini.chess.algorithms.data.enums.Color;
 import com.capgemini.chess.algorithms.data.enums.MoveType;
-import com.capgemini.chess.algorithms.data.enums.Piece;
 import com.capgemini.chess.algorithms.data.generated.Board;
 import com.capgemini.chess.algorithms.implementation.exceptions.InvalidMoveException;
 import com.capgemini.chess.algorithms.implementation.exceptions.KingInCheckException;
@@ -46,12 +52,12 @@ public class BoardManagerTest {
 				}
 			}
 		}
-		assertEquals(Piece.WHITE_PAWN, boardManager.getBoard().getPieceAt(new Coordinate(5, 1)));
-		assertEquals(Piece.WHITE_KING, boardManager.getBoard().getPieceAt(new Coordinate(4, 0)));
-		assertEquals(Piece.WHITE_BISHOP, boardManager.getBoard().getPieceAt(new Coordinate(5, 0)));
-		assertEquals(Piece.BLACK_ROOK, boardManager.getBoard().getPieceAt(new Coordinate(0, 7)));
-		assertEquals(Piece.BLACK_KNIGHT, boardManager.getBoard().getPieceAt(new Coordinate(1, 7)));
-		assertEquals(Piece.BLACK_QUEEN, boardManager.getBoard().getPieceAt(new Coordinate(3, 7)));
+		assertEquals(new Pawn(Color.WHITE), boardManager.getBoard().getPieceAt(new Coordinate(5, 1)));
+		assertEquals(new King(Color.WHITE), boardManager.getBoard().getPieceAt(new Coordinate(4, 0)));
+		assertEquals(new Bishop(Color.WHITE), boardManager.getBoard().getPieceAt(new Coordinate(5, 0)));
+		assertEquals(new Rook(Color.BLACK), boardManager.getBoard().getPieceAt(new Coordinate(0, 7)));
+		assertEquals(new Knight(Color.BLACK), boardManager.getBoard().getPieceAt(new Coordinate(1, 7)));
+		assertEquals(new Queen(Color.BLACK), boardManager.getBoard().getPieceAt(new Coordinate(3, 7)));
 		assertEquals(32, calculateNumberOfPieces(boardManager.getBoard()));
 	}
 
@@ -109,8 +115,8 @@ public class BoardManagerTest {
 		// then
 		assertNull(boardManager.getBoard().getPieceAt(new Coordinate(4, 0)));
 		assertNotNull(boardManager.getBoard().getPieceAt(new Coordinate(2, 0)));
-		assertEquals(Piece.WHITE_KING, boardManager.getBoard().getPieceAt(new Coordinate(2, 0)));
-		assertEquals(Piece.WHITE_ROOK, boardManager.getBoard().getPieceAt(new Coordinate(3, 0)));
+		assertEquals(new King(Color.WHITE), boardManager.getBoard().getPieceAt(new Coordinate(2, 0)));
+		assertEquals(new Rook(Color.WHITE), boardManager.getBoard().getPieceAt(new Coordinate(3, 0)));
 	}
 
 	@Test
@@ -140,7 +146,7 @@ public class BoardManagerTest {
 		assertNull(boardManager.getBoard().getPieceAt(new Coordinate(2, 4)));
 		assertNull(boardManager.getBoard().getPieceAt(new Coordinate(1, 4)));
 		assertNotNull(boardManager.getBoard().getPieceAt(new Coordinate(2, 5)));
-		assertEquals(Piece.WHITE_PAWN, boardManager.getBoard().getPieceAt(new Coordinate(2, 5)));
+		assertEquals(new Pawn(Color.WHITE), boardManager.getBoard().getPieceAt(new Coordinate(2, 5)));
 		assertEquals(31, calculateNumberOfPieces(boardManager.getBoard()));
 	}
 
@@ -158,15 +164,15 @@ public class BoardManagerTest {
 		BoardManager boardManager = new BoardManager(moves);
 
 		// then
-		assertEquals(Piece.BLACK_QUEEN, boardManager.getBoard().getPieceAt(new Coordinate(1, 0)));
+		assertEquals(new Queen(Color.BLACK), boardManager.getBoard().getPieceAt(new Coordinate(1, 0)));
 	}
 
 	@Test
 	public void testPerformMoveBishopAttack() throws InvalidMoveException {
 		// given
 		Board board = new Board();
-		board.setPieceAt(Piece.WHITE_BISHOP, new Coordinate(0, 6));
-		board.setPieceAt(Piece.WHITE_KING, new Coordinate(0, 0));
+		board.setPieceAt(new Bishop(Color.WHITE), new Coordinate(0, 6));
+		board.setPieceAt(new King(Color.WHITE), new Coordinate(0, 0));
 
 		// when
 		BoardManager boardManager = new BoardManager(board);
@@ -174,7 +180,7 @@ public class BoardManagerTest {
 
 		// then
 		assertEquals(MoveType.ATTACK, move.getType());
-		assertEquals(Piece.WHITE_BISHOP, move.getMovedPiece());
+		assertEquals(new Bishop(Color.WHITE), move.getMovedPiece());
 	}
 
 	@Test
@@ -182,8 +188,8 @@ public class BoardManagerTest {
 		// given
 		Board board = new Board();
 		board.getMoveHistory().add(createDummyMove(board));
-		board.setPieceAt(Piece.BLACK_PAWN, new Coordinate(4, 6));
-		board.setPieceAt(Piece.BLACK_KING, new Coordinate(7, 7));
+		board.setPieceAt(new Pawn(Color.BLACK), new Coordinate(4, 6));
+		board.setPieceAt(new King(Color.BLACK), new Coordinate(7, 7));
 
 		// when
 		BoardManager boardManager = new BoardManager(board);
@@ -191,14 +197,14 @@ public class BoardManagerTest {
 
 		// then
 		assertEquals(MoveType.ATTACK, move.getType());
-		assertEquals(Piece.BLACK_PAWN, move.getMovedPiece());
+		assertEquals(new Pawn(Color.BLACK), move.getMovedPiece());
 	}
 
 	@Test
 	public void testPerformMoveKingAttack() throws InvalidMoveException {
 		// given
 		Board board = new Board();
-		board.setPieceAt(Piece.WHITE_KING, new Coordinate(4, 0));
+		board.setPieceAt(new King(Color.WHITE), new Coordinate(4, 0));
 
 		// when
 		BoardManager boardManager = new BoardManager(board);
@@ -206,7 +212,7 @@ public class BoardManagerTest {
 
 		// then
 		assertEquals(MoveType.ATTACK, move.getType());
-		assertEquals(Piece.WHITE_KING, move.getMovedPiece());
+		assertEquals(new King(Color.WHITE), move.getMovedPiece());
 	}
 
 	@Test
@@ -214,9 +220,9 @@ public class BoardManagerTest {
 		// given
 		Board board = new Board();
 		board.getMoveHistory().add(createDummyMove(board));
-		board.setPieceAt(Piece.BLACK_KNIGHT, new Coordinate(3, 4));
-		board.setPieceAt(Piece.WHITE_ROOK, new Coordinate(2, 6));
-		board.setPieceAt(Piece.BLACK_KING, new Coordinate(7, 7));
+		board.setPieceAt(new Knight(Color.BLACK), new Coordinate(3, 4));
+		board.setPieceAt(new Rook(Color.WHITE), new Coordinate(2, 6));
+		board.setPieceAt(new King(Color.BLACK), new Coordinate(7, 7));
 
 		// when
 		BoardManager boardManager = new BoardManager(board);
@@ -224,17 +230,17 @@ public class BoardManagerTest {
 
 		// then
 		assertEquals(MoveType.CAPTURE, move.getType());
-		assertEquals(Piece.BLACK_KNIGHT, move.getMovedPiece());
-		assertEquals(boardManager.getBoard().getPieceAt(new Coordinate(2, 6)), Piece.BLACK_KNIGHT);
+		assertEquals(new Knight(Color.BLACK), move.getMovedPiece());
+		assertEquals(boardManager.getBoard().getPieceAt(new Coordinate(2, 6)), new Knight(Color.BLACK));
 	}
 
 	@Test
 	public void testPerformMoveQueenCapture() throws InvalidMoveException {
 		// given
 		Board board = new Board();
-		board.setPieceAt(Piece.WHITE_QUEEN, new Coordinate(5, 0));
-		board.setPieceAt(Piece.BLACK_PAWN, new Coordinate(7, 2));
-		board.setPieceAt(Piece.WHITE_KING, new Coordinate(0, 0));
+		board.setPieceAt(new Queen(Color.WHITE), new Coordinate(5, 0));
+		board.setPieceAt(new Pawn(Color.BLACK), new Coordinate(7, 2));
+		board.setPieceAt(new King(Color.WHITE), new Coordinate(0, 0));
 
 		// when
 		BoardManager boardManager = new BoardManager(board);
@@ -242,14 +248,14 @@ public class BoardManagerTest {
 
 		// then
 		assertEquals(MoveType.CAPTURE, move.getType());
-		assertEquals(Piece.WHITE_QUEEN, move.getMovedPiece());
+		assertEquals(new Queen(Color.WHITE), move.getMovedPiece());
 	}
 
 	@Test(expected = InvalidMoveException.class)
 	public void testPerformInvalidMoveQueenAttack() throws InvalidMoveException {
 		// given
 		Board board = new Board();
-		board.setPieceAt(Piece.WHITE_QUEEN, new Coordinate(5, 0));
+		board.setPieceAt(new Queen(Color.WHITE), new Coordinate(5, 0));
 		BoardManager boardManager = new BoardManager(board);
 
 		// when
@@ -263,9 +269,9 @@ public class BoardManagerTest {
 		// given
 		Board board = new Board();
 		board.getMoveHistory().add(createDummyMove(board));
-		board.setPieceAt(Piece.BLACK_ROOK, new Coordinate(1, 4));
-		board.setPieceAt(Piece.WHITE_KNIGHT, new Coordinate(5, 4));
-		board.setPieceAt(Piece.BLACK_KING, new Coordinate(7, 7));
+		board.setPieceAt(new Rook(Color.BLACK), new Coordinate(1, 4));
+		board.setPieceAt(new Knight(Color.WHITE), new Coordinate(5, 4));
+		board.setPieceAt(new King(Color.BLACK), new Coordinate(7, 7));
 
 		// when
 		BoardManager boardManager = new BoardManager(board);
@@ -273,7 +279,7 @@ public class BoardManagerTest {
 
 		// then
 		assertEquals(MoveType.CAPTURE, move.getType());
-		assertEquals(Piece.BLACK_ROOK, move.getMovedPiece());
+		assertEquals(new Rook(Color.BLACK), move.getMovedPiece());
 	}
 
 	@Test
@@ -281,8 +287,8 @@ public class BoardManagerTest {
 		// given
 		Board board = new Board();
 		board.getMoveHistory().add(createDummyMove(board));
-		board.setPieceAt(Piece.BLACK_ROOK, new Coordinate(1, 4));
-		board.setPieceAt(Piece.BLACK_KING, new Coordinate(7, 7));
+		board.setPieceAt(new Rook(Color.BLACK), new Coordinate(1, 4));
+		board.setPieceAt(new King(Color.BLACK), new Coordinate(7, 7));
 
 		// when
 		BoardManager boardManager = new BoardManager(board);
@@ -290,7 +296,7 @@ public class BoardManagerTest {
 		Move move = boardManager.performMove(new Coordinate(1, 4), to);
 
 		// then
-		assertEquals(Piece.BLACK_ROOK, boardManager.getBoard().getPieceAt(to));
+		assertEquals(new Rook(Color.BLACK), boardManager.getBoard().getPieceAt(to));
 		assertEquals(MoveType.ATTACK, move.getType());
 	}
 
@@ -298,8 +304,8 @@ public class BoardManagerTest {
 	public void testPerformMoveCastling() throws InvalidMoveException {
 		// given
 		Board board = new Board();
-		board.setPieceAt(Piece.WHITE_KING, new Coordinate(4, 0));
-		board.setPieceAt(Piece.WHITE_ROOK, new Coordinate(7, 0));
+		board.setPieceAt(new King(Color.WHITE), new Coordinate(4, 0));
+		board.setPieceAt(new Rook(Color.WHITE), new Coordinate(7, 0));
 
 		// when
 		BoardManager boardManager = new BoardManager(board);
@@ -307,7 +313,7 @@ public class BoardManagerTest {
 
 		// then
 		assertEquals(MoveType.CASTLING, move.getType());
-		assertEquals(Piece.WHITE_KING, move.getMovedPiece());
+		assertEquals(new King(Color.WHITE), move.getMovedPiece());
 	}
 
 	@Test
@@ -317,10 +323,10 @@ public class BoardManagerTest {
 		BoardManager boardManager = new BoardManager(board);
 
 		board.getMoveHistory().add(createDummyMove(board));
-		board.setPieceAt(Piece.WHITE_PAWN, new Coordinate(1, 4));
-		board.setPieceAt(Piece.BLACK_PAWN, new Coordinate(2, 6));
-		board.setPieceAt(Piece.BLACK_KING, new Coordinate(7, 7));
-		board.setPieceAt(Piece.WHITE_KING, new Coordinate(0, 0));
+		board.setPieceAt(new Pawn(Color.WHITE), new Coordinate(1, 4));
+		board.setPieceAt(new Pawn(Color.BLACK), new Coordinate(2, 6));
+		board.setPieceAt(new King(Color.BLACK), new Coordinate(7, 7));
+		board.setPieceAt(new King(Color.WHITE), new Coordinate(0, 0));
 		boardManager.performMove(new Coordinate(2, 6), new Coordinate(2, 4));
 
 		// when
@@ -328,7 +334,7 @@ public class BoardManagerTest {
 
 		// then
 		assertEquals(MoveType.EN_PASSANT, move.getType());
-		assertEquals(Piece.WHITE_PAWN, move.getMovedPiece());
+		assertEquals(new Pawn(Color.WHITE), move.getMovedPiece());
 	}
 
 	@Test(expected = InvalidMoveException.class)
@@ -345,7 +351,7 @@ public class BoardManagerTest {
 	public void testPerformMoveInvalidMoveOrder() throws InvalidMoveException {
 		// given
 		Board board = new Board();
-		board.setPieceAt(Piece.BLACK_KING, new Coordinate(0, 7));
+		board.setPieceAt(new King(Color.BLACK), new Coordinate(0, 7));
 		BoardManager boardManager = new BoardManager(board);
 
 		// when
@@ -367,7 +373,7 @@ public class BoardManagerTest {
 	public void testPerformMoveInvalidSameSpot() throws InvalidMoveException {
 		// given
 		Board board = new Board();
-		board.setPieceAt(Piece.WHITE_KING, new Coordinate(0, 0));
+		board.setPieceAt(new King(Color.WHITE), new Coordinate(0, 0));
 		BoardManager boardManager = new BoardManager(board);
 
 		// when
@@ -379,7 +385,7 @@ public class BoardManagerTest {
 	public void testPerformMoveInvalidPawnBackwardMove() throws InvalidMoveException {
 		// given
 		Board board = new Board();
-		board.setPieceAt(Piece.WHITE_PAWN, new Coordinate(1, 2));
+		board.setPieceAt(new Pawn(Color.WHITE), new Coordinate(1, 2));
 		BoardManager boardManager = new BoardManager(board);
 
 		// when
@@ -390,7 +396,7 @@ public class BoardManagerTest {
 	public void testPerformMoveInvalidPawnAttackDestination() throws InvalidMoveException {
 		// given
 		Board board = new Board();
-		board.setPieceAt(Piece.WHITE_PAWN, new Coordinate(1, 2));
+		board.setPieceAt(new Pawn(Color.WHITE), new Coordinate(1, 2));
 		BoardManager boardManager = new BoardManager(board);
 
 		// when
@@ -401,7 +407,7 @@ public class BoardManagerTest {
 	public void testPerformMoveInvalidPawnAttackDistance() throws InvalidMoveException {
 		// given
 		Board board = new Board();
-		board.setPieceAt(Piece.WHITE_PAWN, new Coordinate(1, 2));
+		board.setPieceAt(new Pawn(Color.WHITE), new Coordinate(1, 2));
 		BoardManager boardManager = new BoardManager(board);
 
 		// when
@@ -413,8 +419,8 @@ public class BoardManagerTest {
 	public void testPerformMoveInvalidPawnCaptureDestination() throws InvalidMoveException {
 		// given
 		Board board = new Board();
-		board.setPieceAt(Piece.WHITE_PAWN, new Coordinate(1, 2));
-		board.setPieceAt(Piece.BLACK_PAWN, new Coordinate(1, 3));
+		board.setPieceAt(new Pawn(Color.WHITE), new Coordinate(1, 2));
+		board.setPieceAt(new Pawn(Color.BLACK), new Coordinate(1, 3));
 		BoardManager boardManager = new BoardManager(board);
 
 		// when
@@ -425,8 +431,8 @@ public class BoardManagerTest {
 	public void testPerformMoveInvalidBackwardPawnCaptureDestination() throws InvalidMoveException {
 		// given
 		Board board = new Board();
-		board.setPieceAt(Piece.WHITE_PAWN, new Coordinate(2, 4));
-		board.setPieceAt(Piece.BLACK_PAWN, new Coordinate(1, 3));
+		board.setPieceAt(new Pawn(Color.WHITE), new Coordinate(2, 4));
+		board.setPieceAt(new Pawn(Color.BLACK), new Coordinate(1, 3));
 		BoardManager boardManager = new BoardManager(board);
 
 		// when
@@ -439,7 +445,7 @@ public class BoardManagerTest {
 	public void testPerformMoveInvalidKingDistance() throws InvalidMoveException {
 		// given
 		Board board = new Board();
-		board.setPieceAt(Piece.WHITE_KING, new Coordinate(4, 0));
+		board.setPieceAt(new King(Color.WHITE), new Coordinate(4, 0));
 		BoardManager boardManager = new BoardManager(board);
 
 		// when
@@ -451,7 +457,7 @@ public class BoardManagerTest {
 	public void testPerformMoveInvalidKnightDestination() throws InvalidMoveException {
 		// given
 		Board board = new Board();
-		board.setPieceAt(Piece.WHITE_KNIGHT, new Coordinate(1, 1));
+		board.setPieceAt(new Knight(Color.WHITE), new Coordinate(1, 1));
 		BoardManager boardManager = new BoardManager(board);
 
 		// when
@@ -463,7 +469,7 @@ public class BoardManagerTest {
 	public void testPerformMoveInvalidBishopDestination() throws InvalidMoveException {
 		// given
 		Board board = new Board();
-		board.setPieceAt(Piece.WHITE_BISHOP, new Coordinate(1, 1));
+		board.setPieceAt(new Bishop(Color.WHITE), new Coordinate(1, 1));
 
 		// when
 		BoardManager boardManager = new BoardManager(board);
@@ -476,8 +482,8 @@ public class BoardManagerTest {
 	public void testPerformMoveInvalidQueenLeapsOver() throws InvalidMoveException {
 		// given
 		Board board = new Board();
-		board.setPieceAt(Piece.WHITE_QUEEN, new Coordinate(1, 1));
-		board.setPieceAt(Piece.BLACK_PAWN, new Coordinate(4, 4));
+		board.setPieceAt(new Queen(Color.WHITE), new Coordinate(1, 1));
+		board.setPieceAt(new Pawn(Color.BLACK), new Coordinate(4, 4));
 		BoardManager boardManager = new BoardManager(board);
 
 		// when
@@ -490,8 +496,8 @@ public class BoardManagerTest {
 	public void testPerformMoveInvalidRookLeapsOver() throws InvalidMoveException {
 		// given
 		Board board = new Board();
-		board.setPieceAt(Piece.WHITE_ROOK, new Coordinate(3, 0));
-		board.setPieceAt(Piece.WHITE_PAWN, new Coordinate(3, 2));
+		board.setPieceAt(new Rook(Color.WHITE), new Coordinate(3, 0));
+		board.setPieceAt(new Pawn(Color.WHITE), new Coordinate(3, 2));
 		BoardManager boardManager = new BoardManager(board);
 
 		// when
@@ -502,8 +508,8 @@ public class BoardManagerTest {
 	public void testPerformMoveInvalidOwnPieceCapture() throws InvalidMoveException {
 		// given
 		Board board = new Board();
-		board.setPieceAt(Piece.WHITE_KNIGHT, new Coordinate(5, 6));
-		board.setPieceAt(Piece.WHITE_PAWN, new Coordinate(3, 5));
+		board.setPieceAt(new Knight(Color.WHITE), new Coordinate(5, 6));
+		board.setPieceAt(new Pawn(Color.WHITE), new Coordinate(3, 5));
 		BoardManager boardManager = new BoardManager(board);
 
 		// when
@@ -516,8 +522,8 @@ public class BoardManagerTest {
 		Board board = new Board();
 		BoardManager boardManager = new BoardManager(board);
 
-		board.setPieceAt(Piece.WHITE_KING, new Coordinate(4, 0));
-		board.setPieceAt(Piece.WHITE_ROOK, new Coordinate(7, 0));
+		board.setPieceAt(new King(Color.WHITE), new Coordinate(4, 0));
+		board.setPieceAt(new Rook(Color.WHITE), new Coordinate(7, 0));
 		boardManager.performMove(new Coordinate(4, 0), new Coordinate(3, 0));
 		board.getMoveHistory().add(createDummyMove(board));
 		boardManager.performMove(new Coordinate(3, 0), new Coordinate(4, 0));
@@ -533,8 +539,8 @@ public class BoardManagerTest {
 		Board board = new Board();
 		BoardManager boardManager = new BoardManager(board);
 
-		board.setPieceAt(Piece.WHITE_KING, new Coordinate(4, 0));
-		board.setPieceAt(Piece.WHITE_ROOK, new Coordinate(7, 0));
+		board.setPieceAt(new King(Color.WHITE), new Coordinate(4, 0));
+		board.setPieceAt(new Rook(Color.WHITE), new Coordinate(7, 0));
 		boardManager.performMove(new Coordinate(7, 0), new Coordinate(7, 5));
 		board.getMoveHistory().add(createDummyMove(board));
 		boardManager.performMove(new Coordinate(7, 5), new Coordinate(7, 0));
@@ -548,9 +554,9 @@ public class BoardManagerTest {
 	public void testPerformMoveInvalidShortCastlingWithPiecesBetween() throws InvalidMoveException {
 		// given
 		Board board = new Board();
-		board.setPieceAt(Piece.WHITE_KING, new Coordinate(4, 0));
-		board.setPieceAt(Piece.WHITE_ROOK, new Coordinate(7, 0));
-		board.setPieceAt(Piece.WHITE_BISHOP, new Coordinate(5, 0));
+		board.setPieceAt(new King(Color.WHITE), new Coordinate(4, 0));
+		board.setPieceAt(new Rook(Color.WHITE), new Coordinate(7, 0));
+		board.setPieceAt(new Bishop(Color.WHITE), new Coordinate(5, 0));
 		BoardManager boardManager = new BoardManager(board);
 
 		// when
@@ -562,9 +568,9 @@ public class BoardManagerTest {
 		// given
 		Board board = new Board();
 		// createDummyMove(board);
-		board.setPieceAt(Piece.WHITE_KING, new Coordinate(4, 0));
-		board.setPieceAt(Piece.WHITE_ROOK, new Coordinate(0, 0));
-		board.setPieceAt(Piece.WHITE_BISHOP, new Coordinate(1, 0));
+		board.setPieceAt(new King(Color.WHITE), new Coordinate(4, 0));
+		board.setPieceAt(new Rook(Color.WHITE), new Coordinate(0, 0));
+		board.setPieceAt(new Bishop(Color.WHITE), new Coordinate(1, 0));
 		BoardManager boardManager = new BoardManager(board);
 
 		// when
@@ -575,9 +581,9 @@ public class BoardManagerTest {
 	public void testPerformMoveInvalidCastlingKingUnderCheck() throws InvalidMoveException {
 		// given
 		Board board = new Board();
-		board.setPieceAt(Piece.WHITE_KING, new Coordinate(4, 0));
-		board.setPieceAt(Piece.WHITE_ROOK, new Coordinate(7, 0));
-		board.setPieceAt(Piece.BLACK_ROOK, new Coordinate(5, 7));
+		board.setPieceAt(new King(Color.WHITE), new Coordinate(4, 0));
+		board.setPieceAt(new Rook(Color.WHITE), new Coordinate(7, 0));
+		board.setPieceAt(new Rook(Color.BLACK), new Coordinate(5, 7));
 		BoardManager boardManager = new BoardManager(board);
 
 		// when
@@ -588,9 +594,9 @@ public class BoardManagerTest {
 	public void testPerformMoveInvalidKingWouldBeChecked() throws InvalidMoveException {
 		// given
 		Board board = new Board();
-		board.setPieceAt(Piece.WHITE_KING, new Coordinate(4, 0));
-		board.setPieceAt(Piece.WHITE_BISHOP, new Coordinate(4, 5));
-		board.setPieceAt(Piece.BLACK_ROOK, new Coordinate(4, 7));
+		board.setPieceAt(new King(Color.WHITE), new Coordinate(4, 0));
+		board.setPieceAt(new Bishop(Color.WHITE), new Coordinate(4, 5));
+		board.setPieceAt(new Rook(Color.BLACK), new Coordinate(4, 7));
 		BoardManager boardManager = new BoardManager(board);
 
 		// when
@@ -601,10 +607,10 @@ public class BoardManagerTest {
 	public void shouldKingBeDefendedFromCheck() throws InvalidMoveException {
 		// given
 		Board board = new Board();
-		board.setPieceAt(Piece.WHITE_KING, new Coordinate(4, 0));
-		board.setPieceAt(Piece.WHITE_BISHOP, new Coordinate(4, 5));
-		board.setPieceAt(Piece.BLACK_ROOK, new Coordinate(4, 7));
-		board.setPieceAt(Piece.WHITE_PAWN, new Coordinate(4, 1));
+		board.setPieceAt(new King(Color.WHITE), new Coordinate(4, 0));
+		board.setPieceAt(new Bishop(Color.WHITE), new Coordinate(4, 5));
+		board.setPieceAt(new Rook(Color.BLACK), new Coordinate(4, 7));
+		board.setPieceAt(new Pawn(Color.WHITE), new Coordinate(4, 1));
 		BoardManager boardManager = new BoardManager(board);
 
 		// when
@@ -628,8 +634,8 @@ public class BoardManagerTest {
 		// given
 		Board board = new Board();
 		board.getMoveHistory().add(createDummyMove(board));
-		board.setPieceAt(Piece.WHITE_BISHOP, new Coordinate(1, 3));
-		board.setPieceAt(Piece.BLACK_KING, new Coordinate(4, 0));
+		board.setPieceAt(new Bishop(Color.WHITE), new Coordinate(1, 3));
+		board.setPieceAt(new King(Color.BLACK), new Coordinate(4, 0));
 
 		// when
 		BoardManager boardManager = new BoardManager(board);
@@ -644,9 +650,9 @@ public class BoardManagerTest {
 		// given
 		Board board = new Board();
 		board.getMoveHistory().add(createDummyMove(board));
-		board.setPieceAt(Piece.WHITE_ROOK, new Coordinate(0, 1));
-		board.setPieceAt(Piece.WHITE_ROOK, new Coordinate(1, 0));
-		board.setPieceAt(Piece.BLACK_KING, new Coordinate(4, 0));
+		board.setPieceAt(new Rook(Color.WHITE), new Coordinate(0, 1));
+		board.setPieceAt(new Rook(Color.WHITE), new Coordinate(1, 0));
+		board.setPieceAt(new King(Color.BLACK), new Coordinate(4, 0));
 
 		// when
 		BoardManager boardManager = new BoardManager(board);
@@ -662,9 +668,9 @@ public class BoardManagerTest {
 		// probably error in test ->
 		Board board = new Board();
 		board.getMoveHistory().add(createDummyMove(board));
-		board.setPieceAt(Piece.BLACK_KING, new Coordinate(7, 0));
-		board.setPieceAt(Piece.WHITE_QUEEN, new Coordinate(5, 1));
-		board.setPieceAt(Piece.WHITE_KING, new Coordinate(6, 2));
+		board.setPieceAt(new King(Color.BLACK), new Coordinate(7, 0));
+		board.setPieceAt(new Queen(Color.WHITE), new Coordinate(5, 1));
+		board.setPieceAt(new King(Color.WHITE), new Coordinate(6, 2));
 
 		// when
 		BoardManager boardManager = new BoardManager(board);
@@ -786,8 +792,8 @@ public class BoardManagerTest {
 		BoardManager boardManager = new BoardManager(new Board());
 
 		Move move = new Move();
-		boardManager.getBoard().setPieceAt(Piece.WHITE_PAWN, new Coordinate(0, 0));
-		move.setMovedPiece(Piece.WHITE_PAWN);
+		boardManager.getBoard().setPieceAt(new Pawn(Color.WHITE), new Coordinate(0, 0));
+		move.setMovedPiece(new Pawn(Color.WHITE));
 		move.setFrom(new Coordinate(0, 0));
 		move.setTo(new Coordinate(0, 0));
 		move.setType(MoveType.ATTACK);
@@ -810,11 +816,11 @@ public class BoardManagerTest {
 		Move move = new Move();
 
 		if (board.getMoveHistory().size() % 2 == 0) {
-			board.setPieceAt(Piece.WHITE_ROOK, new Coordinate(0, 0));
-			move.setMovedPiece(Piece.WHITE_ROOK);
+			board.setPieceAt(new Rook(Color.WHITE), new Coordinate(0, 0));
+			move.setMovedPiece(new Rook(Color.WHITE));
 		} else {
-			board.setPieceAt(Piece.BLACK_ROOK, new Coordinate(0, 0));
-			move.setMovedPiece(Piece.BLACK_ROOK);
+			board.setPieceAt(new Rook(Color.BLACK), new Coordinate(0, 0));
+			move.setMovedPiece(new Rook(Color.BLACK));
 		}
 		move.setFrom(new Coordinate(0, 0));
 		move.setTo(new Coordinate(0, 0));

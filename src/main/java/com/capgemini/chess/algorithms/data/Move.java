@@ -1,7 +1,7 @@
 package com.capgemini.chess.algorithms.data;
 
+import com.capgemini.chess.algorithms.chesspieces.Piece;
 import com.capgemini.chess.algorithms.data.enums.MoveType;
-import com.capgemini.chess.algorithms.data.enums.Piece;
 
 /**
  * Chess move definition.

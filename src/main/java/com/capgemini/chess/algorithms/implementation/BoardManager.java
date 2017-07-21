@@ -3,13 +3,19 @@ package com.capgemini.chess.algorithms.implementation;
 import java.util.Arrays;
 import java.util.List;
 
+import com.capgemini.chess.algorithms.chesspieces.Bishop;
+import com.capgemini.chess.algorithms.chesspieces.King;
+import com.capgemini.chess.algorithms.chesspieces.Knight;
+import com.capgemini.chess.algorithms.chesspieces.Pawn;
+import com.capgemini.chess.algorithms.chesspieces.Piece;
+import com.capgemini.chess.algorithms.chesspieces.Queen;
+import com.capgemini.chess.algorithms.chesspieces.Rook;
 import com.capgemini.chess.algorithms.data.Coordinate;
 import com.capgemini.chess.algorithms.data.Move;
 import com.capgemini.chess.algorithms.data.enums.BoardState;
 import com.capgemini.chess.algorithms.data.enums.CastlingType;
 import com.capgemini.chess.algorithms.data.enums.Color;
 import com.capgemini.chess.algorithms.data.enums.MoveType;
-import com.capgemini.chess.algorithms.data.enums.Piece;
 import com.capgemini.chess.algorithms.data.enums.PieceType;
 import com.capgemini.chess.algorithms.data.generated.Board;
 import com.capgemini.chess.algorithms.implementation.exceptions.AnotherPieceBlocksException;
@@ -175,30 +181,30 @@ public class BoardManager {
 
 	private void initBoard() {
 
-		this.board.setPieceAt(Piece.BLACK_ROOK, new Coordinate(0, 7));
-		this.board.setPieceAt(Piece.BLACK_KNIGHT, new Coordinate(1, 7));
-		this.board.setPieceAt(Piece.BLACK_BISHOP, new Coordinate(2, 7));
-		this.board.setPieceAt(Piece.BLACK_QUEEN, new Coordinate(3, 7));
-		this.board.setPieceAt(Piece.BLACK_KING, new Coordinate(4, 7));
-		this.board.setPieceAt(Piece.BLACK_BISHOP, new Coordinate(5, 7));
-		this.board.setPieceAt(Piece.BLACK_KNIGHT, new Coordinate(6, 7));
-		this.board.setPieceAt(Piece.BLACK_ROOK, new Coordinate(7, 7));
+		this.board.setPieceAt(new Rook(Color.BLACK), new Coordinate(0, 7));
+		this.board.setPieceAt(new Knight(Color.BLACK), new Coordinate(1, 7));
+		this.board.setPieceAt(new Bishop(Color.BLACK), new Coordinate(2, 7));
+		this.board.setPieceAt(new Queen(Color.BLACK), new Coordinate(3, 7));
+		this.board.setPieceAt(new King(Color.BLACK), new Coordinate(4, 7));
+		this.board.setPieceAt(new Bishop(Color.BLACK), new Coordinate(5, 7));
+		this.board.setPieceAt(new Knight(Color.BLACK), new Coordinate(6, 7));
+		this.board.setPieceAt(new Rook(Color.BLACK), new Coordinate(7, 7));
 
 		for (int x = 0; x < Board.SIZE; x++) {
-			this.board.setPieceAt(Piece.BLACK_PAWN, new Coordinate(x, 6));
+			this.board.setPieceAt(new Pawn(Color.BLACK), new Coordinate(x, 6));
 		}
 
-		this.board.setPieceAt(Piece.WHITE_ROOK, new Coordinate(0, 0));
-		this.board.setPieceAt(Piece.WHITE_KNIGHT, new Coordinate(1, 0));
-		this.board.setPieceAt(Piece.WHITE_BISHOP, new Coordinate(2, 0));
-		this.board.setPieceAt(Piece.WHITE_QUEEN, new Coordinate(3, 0));
-		this.board.setPieceAt(Piece.WHITE_KING, new Coordinate(4, 0));
-		this.board.setPieceAt(Piece.WHITE_BISHOP, new Coordinate(5, 0));
-		this.board.setPieceAt(Piece.WHITE_KNIGHT, new Coordinate(6, 0));
-		this.board.setPieceAt(Piece.WHITE_ROOK, new Coordinate(7, 0));
+		this.board.setPieceAt(new Rook(Color.WHITE), new Coordinate(0, 0));
+		this.board.setPieceAt(new Knight(Color.WHITE), new Coordinate(1, 0));
+		this.board.setPieceAt(new Bishop(Color.WHITE), new Coordinate(2, 0));
+		this.board.setPieceAt(new Queen(Color.WHITE), new Coordinate(3, 0));
+		this.board.setPieceAt(new King(Color.WHITE), new Coordinate(4, 0));
+		this.board.setPieceAt(new Bishop(Color.WHITE), new Coordinate(5, 0));
+		this.board.setPieceAt(new Knight(Color.WHITE), new Coordinate(6, 0));
+		this.board.setPieceAt(new Rook(Color.WHITE), new Coordinate(7, 0));
 
 		for (int x = 0; x < Board.SIZE; x++) {
-			this.board.setPieceAt(Piece.WHITE_PAWN, new Coordinate(x, 1));
+			this.board.setPieceAt(new Pawn(Color.WHITE), new Coordinate(x, 1));
 		}
 	}
 
@@ -224,11 +230,11 @@ public class BoardManager {
 	}
 
 	private void performPromotion(Move move, Piece movedPiece) {
-		if (movedPiece == Piece.WHITE_PAWN && move.getTo().getY() == (Board.SIZE - 1)) {
-			this.board.setPieceAt(Piece.WHITE_QUEEN, move.getTo());
+		if (movedPiece.getType() == movedPiece.getType() && move.getTo().getY() == (Board.SIZE - 1)) {
+			this.board.setPieceAt(new Queen(Color.WHITE), move.getTo());
 		}
-		if (movedPiece == Piece.BLACK_PAWN && move.getTo().getY() == 0) {
-			this.board.setPieceAt(Piece.BLACK_QUEEN, move.getTo());
+		if (movedPiece.getType() == movedPiece.getType() && move.getTo().getY() == 0) {
+			this.board.setPieceAt(new Queen(Color.BLACK), move.getTo());
 		}
 	}
 
@@ -261,8 +267,8 @@ public class BoardManager {
 
 		Move newMove = determineMoveType(from, to, piece);
 
-		piece.isMovePossible(newMove);
-		isAnyPieceBlocking(newMove);
+		piece.isAttackPossible(from, to);
+		isAnyPieceBlocking(from, to);
 		willKingBeInCheckAfter(newMove);
 
 		return newMove;
@@ -290,10 +296,8 @@ public class BoardManager {
 		}
 	}
 
-	private void isAnyPieceBlocking(Move move) throws AnotherPieceBlocksException {
+	private void isAnyPieceBlocking(Coordinate from, Coordinate to) throws AnotherPieceBlocksException {
 
-		Coordinate to = move.getTo();
-		Coordinate from = move.getFrom();
 		int deltaX = Math.abs(from.getX() - to.getX());
 		int deltaY = Math.abs(from.getY() - to.getY());
 
@@ -350,13 +354,12 @@ public class BoardManager {
 	}
 
 	private void noPiecesInBetween(Move newMove, CastlingType castlingType) throws InvalidMoveException {
-		Move castling_positions = new Move();
-		castling_positions.setFrom(newMove.getFrom());
+		Coordinate to;
 		if (castlingType == CastlingType.QUEENSIDE) {
-			castling_positions.setTo(new Coordinate(0, newMove.getTo().getY()));
+			to = new Coordinate(0, newMove.getTo().getY());
 		} else
-			castling_positions.setTo(new Coordinate(7, newMove.getTo().getY()));
-		isAnyPieceBlocking(castling_positions);
+			to = new Coordinate(7, newMove.getTo().getY());
+		isAnyPieceBlocking(newMove.getFrom(), to);
 	}
 
 	private void piecesDidNotMoveBefore(Move newMove, CastlingType castlingType) throws InvalidMoveException {
@@ -403,13 +406,12 @@ public class BoardManager {
 			throw new InvalidMoveException("Cannot classify move");
 		}
 
-		if ((piece == Piece.WHITE_KING || piece == Piece.BLACK_KING) && from.getX() == 4
-				&& (Math.abs(from.getX() - to.getX()) == 2)) {
+		if (piece.getType() == PieceType.KING && from.getX() == 4 && (Math.abs(from.getX() - to.getX()) == 2)) {
 			verifyCastlingConditions(result);
 			result.setType(MoveType.CASTLING);
 		}
 
-		if (piece == Piece.WHITE_PAWN || piece == Piece.BLACK_PAWN) {
+		if (piece.getType() == PieceType.PAWN) {
 			if (!this.board.getMoveHistory().isEmpty()) {
 				Move lastMove = this.board.getMoveHistory().get(this.board.getMoveHistory().size() - 1);
 
@@ -450,10 +452,7 @@ public class BoardManager {
 	}
 
 	private boolean isFieldAttackedByOpponent(Color activeColor, Coordinate toField) {
-		Move move = new Move();
-		move.setTo(toField);
-		move.setType(MoveType.CAPTURE);
-
+	
 		for (int x = 0; x < Board.SIZE; x++) {
 			for (int y = 0; y < Board.SIZE; y++) {
 				Piece piece = board.getPieceAt(new Coordinate(x, y));
@@ -462,10 +461,10 @@ public class BoardManager {
 				else if (piece.getColor() == activeColor) {
 					continue;
 				} else {
-					move.setFrom(new Coordinate(x, y));
+					Coordinate fromField = new Coordinate(x, y);
 					try {
-						piece.isMovePossible(move);
-						isAnyPieceBlocking(move);
+						piece.isAttackPossible(fromField, toField);
+						isAnyPieceBlocking(fromField, toField);
 						return true;
 					} catch (InvalidMoveException e) {
 						continue;
