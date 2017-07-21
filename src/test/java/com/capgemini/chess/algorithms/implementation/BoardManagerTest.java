@@ -18,13 +18,13 @@ import com.capgemini.chess.algorithms.chesspieces.Pawn;
 import com.capgemini.chess.algorithms.chesspieces.Queen;
 import com.capgemini.chess.algorithms.chesspieces.Rook;
 import com.capgemini.chess.algorithms.data.Coordinate;
-import com.capgemini.chess.algorithms.data.Move;
 import com.capgemini.chess.algorithms.data.enums.BoardState;
 import com.capgemini.chess.algorithms.data.enums.Color;
 import com.capgemini.chess.algorithms.data.enums.MoveType;
 import com.capgemini.chess.algorithms.data.generated.Board;
 import com.capgemini.chess.algorithms.implementation.exceptions.InvalidMoveException;
 import com.capgemini.chess.algorithms.implementation.exceptions.KingInCheckException;
+import com.capgemini.chess.algorithms.movements.Move;
 
 /**
  * Test class for testing {@link BoardManager}
