@@ -27,10 +27,19 @@ public class BoardManager {
 
 	private Board board = new Board();
 
+	/**
+	 * Default constructor initializing starting positions of all pieces.
+	 */
 	public BoardManager() {
 		initBoard();
 	}
 
+	/**
+	 * Constructor which creates starting position of all pieces and performs
+	 * all moves (without validation) listed in given in
+	 * 
+	 * @param moves
+	 */
 	public BoardManager(List<Move> moves) {
 		initBoard();
 		for (Move move : moves) {
@@ -38,6 +47,11 @@ public class BoardManager {
 		}
 	}
 
+	/**
+	 * Board manager constructor with already prepared and initialized board.
+	 * 
+	 * @param board
+	 */
 	public BoardManager(Board board) {
 		this.board = board;
 	}
@@ -243,21 +257,11 @@ public class BoardManager {
 		areCoordinatesInBounds(from, to);
 		isFromDifferentThanTo(from, to);
 
-		Piece piece = board.getPieceAt(from);
-		isFromPieceValid(piece); //TODO zmiana nazwy
+		Piece piece = isFromPieceCorrectColor(from);
 
-		Move newMove = new Move();
-		newMove.setMovedPiece(piece);
-		newMove.setFrom(from);
-		newMove.setTo(to);
-		newMove.setType(determineMoveType(from, to, piece));
+		Move newMove = determineMoveType(from, to, piece);
 
-		if (newMove.getType() == MoveType.CASTLING) {
-			verifyCastlingConditions(newMove);
-		} else {
-			piece.isMovePossible(newMove);
-		}
-
+		piece.isMovePossible(newMove);
 		isAnyPieceBlocking(newMove);
 		willKingBeInCheckAfter(newMove);
 
@@ -276,8 +280,7 @@ public class BoardManager {
 
 		board.setPieceAt(piece, to);
 		board.setPieceAt(null, from);
-		if (isKingInCheck(piece.getColor())) { // sprawdzamy czy nasz krol PO
-												// ruchu nie bedzie w szachu
+		if (isKingInCheck(piece.getColor())) {
 			board.setPieceAt(null, to);
 			board.setPieceAt(piece, from);
 			throw new KingInCheckException();
@@ -322,7 +325,7 @@ public class BoardManager {
 				: CastlingType.KINGSIDE;
 
 		if (isKingInCheck(newMove.getMovedPiece().getColor()))
-			throw new InvalidMoveException("King under check cannot castle");		
+			throw new InvalidMoveException("King under check cannot castle");
 		piecesDidNotMoveBefore(newMove, castlingType);
 		noPiecesInBetween(newMove, castlingType);
 		kingDoesNotPassAttackedField(newMove, castlingType);
@@ -331,16 +334,19 @@ public class BoardManager {
 
 	private void kingDoesNotPassAttackedField(Move newMove, CastlingType castlingType) throws InvalidMoveException {
 		int x, y;
-		if (castlingType == CastlingType.QUEENSIDE)
+		if (castlingType == CastlingType.QUEENSIDE) {
 			x = 3;
-		else
+		} else {
 			x = 5;
-		if (newMove.getMovedPiece().getColor() == Color.WHITE)
+		}
+		if (newMove.getMovedPiece().getColor() == Color.WHITE) {
 			y = 0;
-		else
+		} else {
 			y = 7;
-		if (isFieldAttackedByOpponent(newMove.getMovedPiece().getColor(), new Coordinate(x, y)))
+		}
+		if (isFieldAttackedByOpponent(newMove.getMovedPiece().getColor(), new Coordinate(x, y))) {
 			throw new InvalidMoveException("King cannot castle throw attacked field");
+		}
 	}
 
 	private void noPiecesInBetween(Move newMove, CastlingType castlingType) throws InvalidMoveException {
@@ -363,12 +369,14 @@ public class BoardManager {
 				hasKingMoved = true;
 			}
 
-			if (castlingType == CastlingType.QUEENSIDE && move.getMovedPiece().getColor() == newMove.getMovedPiece().getColor()
+			if (castlingType == CastlingType.QUEENSIDE
+					&& move.getMovedPiece().getColor() == newMove.getMovedPiece().getColor()
 					&& move.getMovedPiece().getType() == PieceType.ROOK && move.getFrom().getX() == 0) {
 				hasRookMoved = true;
 			}
 
-			if (castlingType == CastlingType.KINGSIDE && move.getMovedPiece().getColor() == newMove.getMovedPiece().getColor()
+			if (castlingType == CastlingType.KINGSIDE
+					&& move.getMovedPiece().getColor() == newMove.getMovedPiece().getColor()
 					&& move.getMovedPiece().getType() == PieceType.ROOK && move.getFrom().getX() == 7) {
 				hasRookMoved = true;
 			}
@@ -379,43 +387,51 @@ public class BoardManager {
 		}
 	}
 
-	private MoveType determineMoveType(Coordinate from, Coordinate to, Piece piece) throws InvalidMoveException {
-		MoveType result;
-		// TODO change the criteria to classify as castling
-		if ((piece == Piece.WHITE_KING || piece == Piece.BLACK_KING) && from.getX() == 4
-				&& (Math.abs(from.getX() - to.getX()) == 2)) {
-			result = MoveType.CASTLING;
-		} else if (board.getPieceAt(to) == null) {
-			result = MoveType.ATTACK;
+	private Move determineMoveType(Coordinate from, Coordinate to, Piece piece) throws InvalidMoveException {
+		Move result = new Move();
+		result.setFrom(from);
+		result.setTo(to);
+		result.setMovedPiece(piece);
+
+		if (board.getPieceAt(to) == null) {
+			result.setType(MoveType.ATTACK);
 		} else if (board.getPieceAt(to).getColor() != piece.getColor()) {
-			result = MoveType.CAPTURE;
+			result.setType(MoveType.CAPTURE);
 		} else if (board.getPieceAt(to).getColor() == piece.getColor()) {
 			throw new InvalidMoveException("Cannot capture own piece");
 		} else {
 			throw new InvalidMoveException("Cannot classify move");
 		}
 
+		if ((piece == Piece.WHITE_KING || piece == Piece.BLACK_KING) && from.getX() == 4
+				&& (Math.abs(from.getX() - to.getX()) == 2)) {
+			verifyCastlingConditions(result);
+			result.setType(MoveType.CASTLING);
+		}
+
 		if (piece == Piece.WHITE_PAWN || piece == Piece.BLACK_PAWN) {
 			if (!this.board.getMoveHistory().isEmpty()) {
 				Move lastMove = this.board.getMoveHistory().get(this.board.getMoveHistory().size() - 1);
-				
+
 				if (from.getX() != to.getX() && lastMove.getMovedPiece().getColor() != piece.getColor()
 						&& lastMove.getMovedPiece().getType() == PieceType.PAWN
 						&& Math.abs(lastMove.getFrom().getY() - lastMove.getTo().getY()) == 2
 						&& Math.abs(lastMove.getTo().getX() - from.getX()) == 1) {
-					result = (MoveType.EN_PASSANT);
+					result.setType(MoveType.EN_PASSANT);
 				}
 			}
 		}
 		return result;
 	}
 
-	private void isFromPieceValid(Piece piece) throws InvalidMoveException {
+	private Piece isFromPieceCorrectColor(Coordinate from) throws InvalidMoveException {
+		Piece piece = board.getPieceAt(from);
 		if (piece == null) {
 			throw new InvalidMoveException("No piece to move in this position");
 		} else if (calculateNextMoveColor() != piece.getColor()) {
 			throw new InvalidMoveException("The same color cannot move twice");
 		}
+		return piece;
 	}
 
 	private void areCoordinatesInBounds(Coordinate from, Coordinate to) throws InvalidMoveException {

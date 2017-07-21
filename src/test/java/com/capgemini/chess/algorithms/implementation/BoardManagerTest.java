@@ -408,165 +408,109 @@ public class BoardManagerTest {
 
 		boardManager.performMove(new Coordinate(1, 2), new Coordinate(1, 4));
 	}
-//TODO correct exceptions thrown in tests
-	@Test
-	public void testPerformMoveInvalidPawnCaptureDestination() {
+
+	@Test(expected = InvalidMoveException.class)
+	public void testPerformMoveInvalidPawnCaptureDestination() throws InvalidMoveException {
 		// given
 		Board board = new Board();
 		board.setPieceAt(Piece.WHITE_PAWN, new Coordinate(1, 2));
 		board.setPieceAt(Piece.BLACK_PAWN, new Coordinate(1, 3));
+		BoardManager boardManager = new BoardManager(board);
 
 		// when
-		BoardManager boardManager = new BoardManager(board);
-		boolean exceptionThrown = false;
-		try {
-			boardManager.performMove(new Coordinate(1, 2), new Coordinate(1, 3));
-		} catch (InvalidMoveException e) {
-			exceptionThrown = true;
-		}
-
-		// then
-		assertTrue(exceptionThrown);
+		boardManager.performMove(new Coordinate(1, 2), new Coordinate(1, 3));
 	}
 
-	@Test
-	public void testPerformMoveInvalidBackwardPawnCaptureDestination() {
+	@Test(expected = InvalidMoveException.class)
+	public void testPerformMoveInvalidBackwardPawnCaptureDestination() throws InvalidMoveException {
 		// given
 		Board board = new Board();
 		board.setPieceAt(Piece.WHITE_PAWN, new Coordinate(2, 4));
 		board.setPieceAt(Piece.BLACK_PAWN, new Coordinate(1, 3));
+		BoardManager boardManager = new BoardManager(board);
 
 		// when
-		BoardManager boardManager = new BoardManager(board);
-		boolean exceptionThrown = false;
-		try {
-			boardManager.performMove(new Coordinate(1, 2), new Coordinate(1, 3));
-		} catch (InvalidMoveException e) {
-			exceptionThrown = true;
-		}
 
-		// then
-		assertTrue(exceptionThrown);
+		boardManager.performMove(new Coordinate(1, 2), new Coordinate(1, 3));
+
 	}
 
-	@Test
-	public void testPerformMoveInvalidKingDistance() {
+	@Test(expected = InvalidMoveException.class)
+	public void testPerformMoveInvalidKingDistance() throws InvalidMoveException {
 		// given
 		Board board = new Board();
 		board.setPieceAt(Piece.WHITE_KING, new Coordinate(4, 0));
+		BoardManager boardManager = new BoardManager(board);
 
 		// when
-		BoardManager boardManager = new BoardManager(board);
-		boolean exceptionThrown = false;
-		try {
-			boardManager.performMove(new Coordinate(4, 0), new Coordinate(4, 2));
-		} catch (InvalidMoveException e) {
-			exceptionThrown = true;
-		}
+		boardManager.performMove(new Coordinate(4, 0), new Coordinate(4, 2));
 
-		// then
-		assertTrue(exceptionThrown);
 	}
 
-	@Test
-	public void testPerformMoveInvalidKnightDestination() {
+	@Test(expected = InvalidMoveException.class)
+	public void testPerformMoveInvalidKnightDestination() throws InvalidMoveException {
 		// given
 		Board board = new Board();
 		board.setPieceAt(Piece.WHITE_KNIGHT, new Coordinate(1, 1));
+		BoardManager boardManager = new BoardManager(board);
 
 		// when
-		BoardManager boardManager = new BoardManager(board);
-		boolean exceptionThrown = false;
-		try {
-			boardManager.performMove(new Coordinate(1, 1), new Coordinate(3, 3));
-		} catch (InvalidMoveException e) {
-			exceptionThrown = true;
-		}
+		boardManager.performMove(new Coordinate(1, 1), new Coordinate(3, 3));
 
-		// then
-		assertTrue(exceptionThrown);
 	}
 
-	@Test
-	public void testPerformMoveInvalidBishopDestination() {
+	@Test(expected = InvalidMoveException.class)
+	public void testPerformMoveInvalidBishopDestination() throws InvalidMoveException {
 		// given
 		Board board = new Board();
 		board.setPieceAt(Piece.WHITE_BISHOP, new Coordinate(1, 1));
 
 		// when
 		BoardManager boardManager = new BoardManager(board);
-		boolean exceptionThrown = false;
-		try {
-			boardManager.performMove(new Coordinate(1, 1), new Coordinate(1, 2));
-		} catch (InvalidMoveException e) {
-			exceptionThrown = true;
-		}
 
-		// then
-		assertTrue(exceptionThrown);
+		boardManager.performMove(new Coordinate(1, 1), new Coordinate(1, 2));
+
 	}
 
-	@Test
-	public void testPerformMoveInvalidQueenLeapsOver() {
+	@Test(expected = InvalidMoveException.class)
+	public void testPerformMoveInvalidQueenLeapsOver() throws InvalidMoveException {
 		// given
 		Board board = new Board();
 		board.setPieceAt(Piece.WHITE_QUEEN, new Coordinate(1, 1));
 		board.setPieceAt(Piece.BLACK_PAWN, new Coordinate(4, 4));
+		BoardManager boardManager = new BoardManager(board);
 
 		// when
-		BoardManager boardManager = new BoardManager(board);
-		boolean exceptionThrown = false;
-		try {
-			boardManager.performMove(new Coordinate(1, 1), new Coordinate(6, 6));
-		} catch (InvalidMoveException e) {
-			exceptionThrown = true;
-		}
 
-		// then
-		assertTrue(exceptionThrown);
+		boardManager.performMove(new Coordinate(1, 1), new Coordinate(6, 6));
+
 	}
 
-	@Test
-	public void testPerformMoveInvalidRookLeapsOver() {
+	@Test(expected = InvalidMoveException.class)
+	public void testPerformMoveInvalidRookLeapsOver() throws InvalidMoveException {
 		// given
 		Board board = new Board();
 		board.setPieceAt(Piece.WHITE_ROOK, new Coordinate(3, 0));
 		board.setPieceAt(Piece.WHITE_PAWN, new Coordinate(3, 2));
+		BoardManager boardManager = new BoardManager(board);
 
 		// when
-		BoardManager boardManager = new BoardManager(board);
-		boolean exceptionThrown = false;
-		try {
-			boardManager.performMove(new Coordinate(3, 0), new Coordinate(3, 7));
-		} catch (InvalidMoveException e) {
-			exceptionThrown = true;
-		}
-
-		// then
-		assertTrue(exceptionThrown);
+		boardManager.performMove(new Coordinate(3, 0), new Coordinate(3, 7));
 	}
 
-	@Test
-	public void testPerformMoveInvalidOwnPieceCapture() {
+	@Test(expected = InvalidMoveException.class)
+	public void testPerformMoveInvalidOwnPieceCapture() throws InvalidMoveException {
 		// given
 		Board board = new Board();
 		board.setPieceAt(Piece.WHITE_KNIGHT, new Coordinate(5, 6));
 		board.setPieceAt(Piece.WHITE_PAWN, new Coordinate(3, 5));
+		BoardManager boardManager = new BoardManager(board);
 
 		// when
-		BoardManager boardManager = new BoardManager(board);
-		boolean exceptionThrown = false;
-		try {
-			boardManager.performMove(new Coordinate(5, 6), new Coordinate(3, 5));
-		} catch (InvalidMoveException e) {
-			exceptionThrown = true;
-		}
-
-		// then
-		assertTrue(exceptionThrown);
+		boardManager.performMove(new Coordinate(5, 6), new Coordinate(3, 5));
 	}
 
-	@Test
+	@Test(expected = InvalidMoveException.class)
 	public void testPerformMoveInvalidCastlingKingMoved() throws InvalidMoveException {
 		// given
 		Board board = new Board();
@@ -580,18 +524,10 @@ public class BoardManagerTest {
 		board.getMoveHistory().add(createDummyMove(board));
 
 		// when
-		boolean exceptionThrown = false;
-		try {
-			boardManager.performMove(new Coordinate(4, 0), new Coordinate(6, 0));
-		} catch (InvalidMoveException e) {
-			exceptionThrown = true;
-		}
-
-		// then
-		assertTrue(exceptionThrown);
+		boardManager.performMove(new Coordinate(4, 0), new Coordinate(6, 0));
 	}
 
-	@Test
+	@Test(expected = InvalidMoveException.class)
 	public void testPerformMoveInvalidCastlingRookMoved() throws InvalidMoveException {
 		// given
 		Board board = new Board();
@@ -605,103 +541,63 @@ public class BoardManagerTest {
 		board.getMoveHistory().add(createDummyMove(board));
 
 		// when
-		boolean exceptionThrown = false;
-		try {
-			boardManager.performMove(new Coordinate(4, 0), new Coordinate(6, 0));
-		} catch (InvalidMoveException e) {
-			exceptionThrown = true;
-		}
-
-		// then
-		assertTrue(exceptionThrown);
+		boardManager.performMove(new Coordinate(4, 0), new Coordinate(6, 0));
 	}
 
-	@Test
-	public void testPerformMoveInvalidShortCastlingWithPiecesBetween() {
+	@Test(expected = InvalidMoveException.class)
+	public void testPerformMoveInvalidShortCastlingWithPiecesBetween() throws InvalidMoveException {
 		// given
 		Board board = new Board();
 		board.setPieceAt(Piece.WHITE_KING, new Coordinate(4, 0));
 		board.setPieceAt(Piece.WHITE_ROOK, new Coordinate(7, 0));
 		board.setPieceAt(Piece.WHITE_BISHOP, new Coordinate(5, 0));
+		BoardManager boardManager = new BoardManager(board);
 
 		// when
-		BoardManager boardManager = new BoardManager(board);
-		boolean exceptionThrown = false;
-		try {
-			boardManager.performMove(new Coordinate(4, 0), new Coordinate(6, 0));
-		} catch (InvalidMoveException e) {
-			exceptionThrown = true;
-		}
-
-		// then
-		assertTrue(exceptionThrown);
+		boardManager.performMove(new Coordinate(4, 0), new Coordinate(6, 0));
 	}
 
-	@Test
-	public void testPerformMoveInvalidLongCastlingWithPiecesBetween() {
+	@Test(expected = InvalidMoveException.class)
+	public void testPerformMoveInvalidLongCastlingWithPiecesBetween() throws InvalidMoveException {
 		// given
 		Board board = new Board();
 		// createDummyMove(board);
 		board.setPieceAt(Piece.WHITE_KING, new Coordinate(4, 0));
 		board.setPieceAt(Piece.WHITE_ROOK, new Coordinate(0, 0));
 		board.setPieceAt(Piece.WHITE_BISHOP, new Coordinate(1, 0));
+		BoardManager boardManager = new BoardManager(board);
 
 		// when
-		BoardManager boardManager = new BoardManager(board);
-		boolean exceptionThrown = false;
-		try {
-			boardManager.performMove(new Coordinate(4, 0), new Coordinate(2, 0));
-		} catch (InvalidMoveException e) {
-			exceptionThrown = true;
-		}
-
-		// then
-		assertTrue(exceptionThrown);
+		boardManager.performMove(new Coordinate(4, 0), new Coordinate(2, 0));
 	}
 
-	@Test
-	public void testPerformMoveInvalidCastlingKingUnderCheck() {
+	@Test(expected = InvalidMoveException.class)
+	public void testPerformMoveInvalidCastlingKingUnderCheck() throws InvalidMoveException {
 		// given
 		Board board = new Board();
 		board.setPieceAt(Piece.WHITE_KING, new Coordinate(4, 0));
 		board.setPieceAt(Piece.WHITE_ROOK, new Coordinate(7, 0));
 		board.setPieceAt(Piece.BLACK_ROOK, new Coordinate(5, 7));
+		BoardManager boardManager = new BoardManager(board);
 
 		// when
-		BoardManager boardManager = new BoardManager(board);
-		boolean exceptionThrown = false;
-		try {
-			boardManager.performMove(new Coordinate(4, 0), new Coordinate(6, 0));
-		} catch (InvalidMoveException e) {
-			exceptionThrown = true;
-		}
-
-		// then
-		assertTrue(exceptionThrown);
+		boardManager.performMove(new Coordinate(4, 0), new Coordinate(6, 0));
 	}
 
-	@Test
-	public void testPerformMoveInvalidKingWouldBeChecked() {
+	@Test (expected = KingInCheckException.class)
+	public void testPerformMoveInvalidKingWouldBeChecked() throws InvalidMoveException {
 		// given
 		Board board = new Board();
 		board.setPieceAt(Piece.WHITE_KING, new Coordinate(4, 0));
 		board.setPieceAt(Piece.WHITE_BISHOP, new Coordinate(4, 5));
 		board.setPieceAt(Piece.BLACK_ROOK, new Coordinate(4, 7));
+		BoardManager boardManager = new BoardManager(board);
 
 		// when
-		BoardManager boardManager = new BoardManager(board);
-		boolean exceptionThrown = false;
-		try {
-			boardManager.performMove(new Coordinate(4, 5), new Coordinate(7, 2));
-		} catch (InvalidMoveException e) {
-			exceptionThrown = e instanceof KingInCheckException;
-		}
-
-		// then
-		assertTrue(exceptionThrown);
+		boardManager.performMove(new Coordinate(4, 5), new Coordinate(7, 2));
 	}
 
-	@Test
+	@Test 
 	public void shouldKingBeDefendedFromCheck() throws InvalidMoveException {
 		// given
 		Board board = new Board();
@@ -709,18 +605,10 @@ public class BoardManagerTest {
 		board.setPieceAt(Piece.WHITE_BISHOP, new Coordinate(4, 5));
 		board.setPieceAt(Piece.BLACK_ROOK, new Coordinate(4, 7));
 		board.setPieceAt(Piece.WHITE_PAWN, new Coordinate(4, 1));
+		BoardManager boardManager = new BoardManager(board);
 
 		// when
-		BoardManager boardManager = new BoardManager(board);
-		boolean withoutException = true;
-		try {
-			boardManager.performMove(new Coordinate(4, 5), new Coordinate(7, 2));
-		} catch (InvalidMoveException e) {
-			withoutException = false;
-		}
-
-		// then
-		assertTrue(withoutException);
+		boardManager.performMove(new Coordinate(4, 5), new Coordinate(7, 2));
 	}
 
 	@Test
@@ -767,24 +655,6 @@ public class BoardManagerTest {
 		// then
 		assertEquals(BoardState.CHECK_MATE, boardState);
 	}
-
-	// @Test
-	// public void shouldKingBeInCheckMate() throws InvalidMoveException {
-	// // given
-	// Board board = new Board();
-	// board.getMoveHistory().add(createDummyMove(board));
-	//
-	// board.setPieceAt(Piece.WHITE_KING, new Coordinate(5, 4));
-	// board.setPieceAt(Piece.WHITE_ROOK, new Coordinate(7, 0));
-	// board.setPieceAt(Piece.BLACK_KING, new Coordinate(7, 4));
-	//
-	// // when
-	// BoardManager boardManager = new BoardManager(board);
-	// BoardState boardState = boardManager.updateBoardState();
-	//
-	// // then
-	// assertEquals(BoardState.CHECK_MATE, boardState);
-	// }
 
 	@Test
 	public void testUpdateBoardStateStaleMate() throws InvalidMoveException {
